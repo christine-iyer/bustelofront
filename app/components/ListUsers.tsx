@@ -86,7 +86,7 @@ const ListUsers: React.FC = () => {
           <Button
             title="Save"
             onPress={() => handleSave(item._id)}
-            color="#4caf50"
+            color="pink"
           />
           <Button
             title="Cancel"
