@@ -51,7 +51,7 @@ const CreateUserForm: React.FC = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Submit" onPress={handleSubmit} color="#6200ee" />
+      <Button title="Submit" onPress={handleSubmit} color="yellow" />
     </View>
   );
 };
@@ -59,6 +59,7 @@ const CreateUserForm: React.FC = () => {
 const styles = StyleSheet.create({
   form: {
     marginBottom: 16,
+    borderStyle: "solid",
   },
   input: {
     height: 40,

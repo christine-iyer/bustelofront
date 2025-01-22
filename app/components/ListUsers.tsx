@@ -112,6 +112,7 @@ const ListUsers: React.FC = () => {
             title="Delete"
             onPress={() => handleDelete(item._id)}
             color="#f44336"
+              
           />
         </>
       )}
@@ -145,6 +146,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 4,
   },
+  button:{
+    height: 40,
+  }
 });
 
 export default ListUsers;
