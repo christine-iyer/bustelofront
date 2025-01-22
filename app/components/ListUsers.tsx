@@ -16,6 +16,7 @@ interface User {
   _id: string;
   username: string;
   email: string;
+  password: string;
 }
 
 const ListUsers: React.FC = () => {
@@ -23,6 +24,7 @@ const ListUsers: React.FC = () => {
   const [editableUserId, setEditableUserId] = useState<string | null>(null);
   const [tempUsername, setTempUsername] = useState<string>("");
   const [tempEmail, setTempEmail] = useState<string>("");
+  const [tempPassword, setTempPassword] = useState<string>("");
 
   const fetchUsers = async () => {
     try {
@@ -48,6 +50,7 @@ const ListUsers: React.FC = () => {
       await axios.put(`${API_BASE_URL}/${id}`, {
         username: tempUsername,
         email: tempEmail,
+        password: tempPassword,
       });
       Alert.alert("Success", "User updated!");
       setEditableUserId(null);
@@ -75,6 +78,11 @@ const ListUsers: React.FC = () => {
             value={tempEmail}
             onChangeText={setTempEmail}
           />
+          <TextInput
+            style={styles.input}
+            value={tempPassword}
+            onChangeText={setTempPassword}  
+            />
           <Button
             title="Save"
             onPress={() => handleSave(item._id)}
@@ -89,7 +97,7 @@ const ListUsers: React.FC = () => {
       ) : (
         <>
           <Text style={styles.text}>
-            {item.username} - {item.email}
+            {item.username} - {item.email} - {item.password}
           </Text>
           <Button
             title="Edit"
@@ -97,6 +105,7 @@ const ListUsers: React.FC = () => {
               setEditableUserId(item._id);
               setTempUsername(item.username);
               setTempEmail(item.email);
+              setTempPassword(item.password);
             }}
           />
           <Button
