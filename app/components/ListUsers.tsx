@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Button,
+  TouchableOpacity,
   StyleSheet,
   Alert,
   FlatList,
@@ -66,57 +66,61 @@ const ListUsers: React.FC = () => {
 
   const renderItem = ({ item }: { item: User }) => (
     <View style={styles.userContainer}>
-      {editableUserId === item._id ? (
-        <>
-          <TextInput
-            style={styles.input}
-            value={tempUsername}
-            onChangeText={setTempUsername}
-          />
-          <TextInput
-            style={styles.input}
-            value={tempEmail}
-            onChangeText={setTempEmail}
-          />
-          <TextInput
-            style={styles.input}
-            value={tempPassword}
-            onChangeText={setTempPassword}  
-            />
-          <Button
-            title="Save"
-            onPress={() => handleSave(item._id)}
-            color="pink"
-          />
-          <Button
-            title="Cancel"
-            onPress={() => setEditableUserId(null)}
-            color="#f44336"
-          />
-        </>
-      ) : (
-        <>
-          <Text style={styles.text}>
-            {item.username} - {item.email} - {item.password}
-          </Text>
-          <Button
-            title="Edit"
-            onPress={() => {
-              setEditableUserId(item._id);
-              setTempUsername(item.username);
-              setTempEmail(item.email);
-              setTempPassword(item.password);
-            }}
-          />
-          <Button
-            title="Delete"
-            onPress={() => handleDelete(item._id)}
-            color="#f44336"
-              
-          />
-        </>
-      )}
-    </View>
+    {editableUserId === item._id ? (
+      <>
+        <TextInput
+          style={styles.input}
+          value={tempUsername}
+          onChangeText={setTempUsername}
+        />
+        <TextInput
+          style={styles.input}
+          value={tempEmail}
+          onChangeText={setTempEmail}
+        />
+        <TextInput
+          style={styles.input}
+          value={tempPassword}
+          onChangeText={setTempPassword}  
+        />
+        <TouchableOpacity
+          style={[styles.button, styles.saveButton]}
+          onPress={() => handleSave(item._id)}
+        >
+          <Text style={styles.buttonText}>Save</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.cancelButton]}
+          onPress={() => setEditableUserId(null)}
+        >
+          <Text style={styles.buttonText}>Cancel</Text>
+        </TouchableOpacity>
+      </>
+    ) : (
+      <>
+        <Text style={styles.text}>
+          {item.username} - {item.email} - {item.password}
+        </Text>
+        <TouchableOpacity
+          style={[styles.button, styles.editButton]}
+          onPress={() => {
+            setEditableUserId(item._id);
+            setTempUsername(item.username);
+            setTempEmail(item.email);
+            setTempPassword(item.password);
+          }}
+        >
+          <Text style={styles.buttonText}>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.deleteButton]}
+          onPress={() => handleDelete(item._id)}
+        >
+          <Text style={styles.buttonText}>Delete</Text>
+        </TouchableOpacity>
+      </>
+    )}
+  </View>
   );
 
   return (
@@ -146,9 +150,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 4,
   },
-  button:{
-    height: 40,
-  }
+  button: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+    marginVertical: 4,
+    alignItems: "center",
+    maxWidth: 100,
+    alignSelf: "flex-end",
+}, 
+  saveButton: {
+    backgroundColor: "green",
+  },
+  cancelButton: {
+    backgroundColor: "red",
+  },
+  editButton: {
+    backgroundColor: "blue",
+  },
+  deleteButton: {
+    backgroundColor: "red",
+  },
+  buttonText: {
+    color: "brown",
+    fontWeight: "bold",
+  },
+      
+
 });
 
 export default ListUsers;

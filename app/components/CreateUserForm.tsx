@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet, Alert } from "react-native";
+import { View, Text,TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import axios from "axios";
 
 const API_BASE_URL = "http://localhost:3001/api/user";
@@ -51,7 +51,11 @@ const CreateUserForm: React.FC = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Submit" onPress={handleSubmit} color="yellow" />
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+         <Text style={styles.buttonText}>Delete</Text>
+                </TouchableOpacity>
+
+      
     </View>
   );
 };
@@ -68,6 +72,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     paddingHorizontal: 8,
     borderRadius: 4,
+  },
+  button: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+    backgroundColor: "#007bff",
+    alignItems: "center",
+    maxWidth:100,
+    maxHeight: 90,
+ 
+
   },
 });
 
