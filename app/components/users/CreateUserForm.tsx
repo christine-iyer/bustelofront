@@ -51,8 +51,8 @@ const CreateUserForm: React.FC = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-         <Text style={styles.buttonText}>Delete</Text>
+      <TouchableOpacity style={styles.buttonText} onPress={handleSubmit}>
+         <Text style={styles.buttonText}>Submit your Details</Text>
                 </TouchableOpacity>
 
       
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 4,
   },
-  button: {
+  buttonText: {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 4,

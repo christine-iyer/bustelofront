@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import CreateUserForm from "./components/CreateUserForm"; 
-import ListUsers from "./components/ListUsers";
+import CreateReview from "./components/reviews/CreateReview"; 
+import ListUsers from "./components/users/ListUsers";
 const App = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Create User</Text>
-<CreateUserForm />
+<CreateReview />
       <Text style={styles.heading}>User List</Text>
       <ListUsers />
     </View>
