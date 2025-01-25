@@ -21,8 +21,8 @@ const CreateReview: React.FC = () => {
   const [genre, setGenre] = useState<string>("");
 
   const handleSubmit = async () => {
-    if (!title || !author || !text || !genre || rating <= 0) {
-      Alert.alert("Error", "All fields are required!");
+    if (!title ) {
+      Alert.alert("Error", "Please at least create a placeholder with the book title!");
       return;
     }
 
