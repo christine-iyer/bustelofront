@@ -1,14 +1,14 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import CreateReview from "./components/reviews/CreateReview"; 
-import ListUsers from "./components/users/ListUsers";
+import ListReviews from "./components/reviews/ListReviews";
 const App = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Create User</Text>
+      <Text style={styles.heading}>Write a Book Review</Text>
 <CreateReview />
-      <Text style={styles.heading}>User List</Text>
-      <ListUsers />
+      <Text style={styles.heading}>Wondering what to read next?</Text>
+      <ListReviews />
     </View>
   );
 };

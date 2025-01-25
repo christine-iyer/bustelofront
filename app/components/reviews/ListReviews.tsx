@@ -12,17 +12,18 @@ import axios from "axios";
 
 const API_BASE_URL = "http://localhost:3001/api/review";
 
-interface User {
+interface Review {
   _id: string;
   title: string;
   author: string;
   text: string;
   rating: number;
   genre: string;
+  createdAt: Date
 }
 
-const ListUsers: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
+const ListReviews: React.FC = () => {
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [editableUserId, setEditableUserId] = useState<string | null>(null);
   const [tempTitle, setTempTitle] = useState<string>("");
   const [tempAuthor, setTempAuthor] = useState<string>("");
@@ -30,62 +31,66 @@ const ListUsers: React.FC = () => {
   const [tempRating, setTempRating] = useState<number>(0);
   const [tempGenre, setTempGenre] = useState<string>("");
 
-  const fetchUsers = async () => {
+  const fetchReviews = async () => {
     try {
-      const response = await axios.get<User[]>(API_BASE_URL);
-      setUsers(response.data);
+      const response = await axios.get<Review[]>(API_BASE_URL);
+      setReviews(response.data);
     } catch (error) {
-      Alert.alert("Error", "Failed to fetch users.");
+      Alert.alert("Error", "Failed to fetch reviews.");
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
       await axios.delete(`${API_BASE_URL}/${id}`);
-      Alert.alert("Success", "User deleted!");
-      fetchUsers();
+      Alert.alert("Success", "Review deleted!");
+      fetchReviews();
     } catch (error) {
-      Alert.alert("Error", "Failed to delete user.");
+      Alert.alert("Error", "Failed to delete review.");
     }
   };
 
   const handleSave = async (id: string) => {
     try {
       await axios.put(`${API_BASE_URL}/${id}`, {
-        username: tempUsername,
-        email: tempEmail,
-        password: tempPassword,
+        title: tempTitle,
+        author: tempAuthor,
+        text: tempText,
+        genre: tempGenre,
+        rating: tempRating
       });
-      Alert.alert("Success", "User updated!");
+      Alert.alert("Success", "Review updated!");
       setEditableUserId(null);
-      fetchUsers();
+      fetchReviews();
     } catch (error) {
-      Alert.alert("Error", "Failed to update user.");
+      Alert.alert("Error", "Failed to update review.");
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchReviews();
   }, []);
 
-  const renderItem = ({ item }: { item: User }) => (
-    <View style={styles.userContainer}>
+  const renderItem = ({ item }: { item: Review }) => (
+    <View style={styles.ReviewContainer}>
     {editableUserId === item._id ? (
       <>
         <TextInput
           style={styles.input}
-          value={tempUsername}
-          onChangeText={setTempUsername}
+          value={tempTitle}
+          onChangeText={setTempTitle}
         />
         <TextInput
           style={styles.input}
-          value={tempEmail}
-          onChangeText={setTempEmail}
+          value={tempAuthor}
+          onChangeText={setTempAuthor}
         />
         <TextInput
           style={styles.input}
-          value={tempPassword}
-          onChangeText={setTempPassword}  
+          value={tempText}
+          onChangeText={setTempText} 
+          multiline={true}
+    numberOfLines={4} 
         />
         <TouchableOpacity
           style={[styles.button, styles.saveButton]}
@@ -103,15 +108,17 @@ const ListUsers: React.FC = () => {
     ) : (
       <>
         <Text style={styles.text}>
-          {item.username} - {item.email} - {item.password}
+          {item.title} - {item.author} - {item.text}
         </Text>
         <TouchableOpacity
           style={[styles.button, styles.editButton]}
           onPress={() => {
             setEditableUserId(item._id);
-            setTempUsername(item.username);
-            setTempEmail(item.email);
-            setTempPassword(item.password);
+            setTempTitle(item.title);
+            setTempAuthor(item.author);
+            setTempText(item.text);
+            setTempGenre(item.genre);
+            setTempRating(item.rating)
           }}
         >
           <Text style={styles.buttonText}>Edit</Text>
@@ -129,7 +136,7 @@ const ListUsers: React.FC = () => {
 
   return (
     <FlatList
-      data={users}
+      data={reviews}
       renderItem={renderItem}
       keyExtractor={(item) => item._id}
     />
@@ -137,7 +144,7 @@ const ListUsers: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  userContainer: {
+  ReviewContainer: {
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
@@ -183,4 +190,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default ListUsers;
+export default ListReviews;
