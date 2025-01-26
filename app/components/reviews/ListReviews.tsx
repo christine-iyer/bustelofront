@@ -33,9 +33,11 @@ const ListReviews: React.FC = () => {
 
   const fetchReviews = async () => {
     try {
-      const response = await axios.get<Review[]>(API_BASE_URL);
-      setReviews(response.data);
+      const response = await axios.get(API_BASE_URL);
+      console.log(response.data); // Debug the API response
+      setReviews(response.data.data); // Access the `data` property
     } catch (error) {
+      console.error(error); // Log detailed error for debugging
       Alert.alert("Error", "Failed to fetch reviews.");
     }
   };
