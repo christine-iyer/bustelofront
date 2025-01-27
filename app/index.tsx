@@ -2,13 +2,15 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import CreateReview from "./components/reviews/CreateReview"; 
 import ListReviews from "./components/reviews/ListReviews";
+import FlipCards from "./components/flipcards/FlipCards"
 const App = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Write a Book Review</Text>
-<CreateReview />
+{/* <CreateReview /> */}
       <Text style={styles.heading}>Wondering what to read next?</Text>
-      <ListReviews />
+      {/* <ListReviews /> */}
+      <FlipCards/>
     </View>
   );
 };
