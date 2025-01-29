@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { View, Text,TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:3001/api/user";
+const API_BASE_URL = "http://192.168.0.49:3001/api/user";
 
 const CreateUserForm: React.FC = () => {
   const [username, setUsername] = useState<string>("");
@@ -51,11 +51,9 @@ const CreateUserForm: React.FC = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.buttonText} onPress={handleSubmit}>
-         <Text style={styles.buttonText}>Submit your Details</Text>
-                </TouchableOpacity>
-
-      
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Submit your Details</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -73,16 +71,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 4,
   },
+  button: {
+    backgroundColor:"red"
+  },
   buttonText: {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 4,
     backgroundColor: "#007bff",
     alignItems: "center",
-    maxWidth:100,
+    maxWidth: 100,
     maxHeight: 90,
- 
-
   },
 });
 

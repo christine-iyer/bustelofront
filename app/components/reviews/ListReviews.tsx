@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:3001/api/review";
+const API_BASE_URL = "http://192.168.0.49:3001/api/review";
 
 interface Review {
   _id: string;
@@ -110,7 +110,7 @@ const ListReviews: React.FC = () => {
     ) : (
       <>
         <Text style={styles.text}>
-          {item.title} - {item.author} - {item.text}
+          {item.title} - {item.author} - {item.text} - {item.genre}. I give it a {item.rating}
         </Text>
         <TouchableOpacity
           style={[styles.button, styles.editButton]}

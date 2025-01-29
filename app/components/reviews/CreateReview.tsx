@@ -1,33 +1,57 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 
 // Replace localhost with your machine's IP address
-const API_BASE_URL = "http://localhost:3001/api/review";
+const API_BASE_URL = "http://192.168.0.49:3001/api/review";
+
+interface User {
+  _id: string;
+  username: string;
+}
 
 const CreateReview: React.FC = () => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState("");
   const [title, setTitle] = useState<string>("");
   const [author, setAuthor] = useState<string>("");
   const [text, setText] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
   const [genre, setGenre] = useState<string>("");
 
+  useEffect(() => {
+    axios.get(`${API_BASE_URL}/api/user`)
+      .then(res => {
+        console.log("Users API Raw Response:", res.data); // Log full response
+        if (Array.isArray(res.data)) {
+          setUsers(res.data); // ✅ If API returns an array
+        } else if (Array.isArray(res.data.users)) {
+          setUsers(res.data.users); // ✅ If API wraps users inside an object
+        } else {
+          console.error("Unexpected API response format:", res.data);
+          setUsers([]); // Prevent .map() error
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching users:", err);
+        setUsers([]); // Ensure it's an array even on error
+      });
+  }, []);
   const handleSubmit = async () => {
-    if (!title ) {
-      Alert.alert("Error", "Please at least create a placeholder with the book title!");
+    if (!selectedUser) {
+      Alert.alert("Error", "Please at least select a user in order to write a review!");
       return;
     }
-
     try {
-      await axios.post(API_BASE_URL, { title, author, text, rating, genre });
+      await axios.post(`${API_BASE_URL}/api/review`, { 
+        userId: selectedUser, 
+        title, 
+        author, 
+        text, 
+        rating: Number(rating), 
+        genre
+      });
       Alert.alert("Success", "Review written!");
       setTitle("");
       setAuthor("");
@@ -44,6 +68,14 @@ const CreateReview: React.FC = () => {
 
   return (
     <View style={styles.form}>
+      {/* <Text>Select User:</Text> */}
+      <Picker selectedValue={selectedUser} onValueChange={(value) => setSelectedUser(value)}>
+        <Picker.Item label="Select a user" value="" />
+        {users.map((user) => (
+          <Picker.Item key={user._id} label={user.username} value={user._id} />
+        ))}
+      </Picker>
+      
       <TextInput
         style={styles.input}
         placeholder="Title"
@@ -63,12 +95,12 @@ const CreateReview: React.FC = () => {
         onChangeText={setText}
       />
       <TextInput
-        style={styles.input}
-        placeholder="Rating"
-        value={rating.toString()}
-        onChangeText={(value) => setRating(Number(value))}
-        keyboardType="numeric"
-      />
+  style={styles.input}
+  placeholder="Rating (1-5)"
+  keyboardType="numeric"
+  value={rating ? rating.toString() : ""}
+  onChangeText={(value) => setRating(parseInt(value) || 0)}
+/>
       <Picker
         style={styles.input}
         selectedValue={genre}

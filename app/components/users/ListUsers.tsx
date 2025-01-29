@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:3001/api/user";
+const API_BASE_URL = "http://192.168.0.49:3001/api/user";
 
 interface User {
   _id: string;
@@ -26,6 +26,7 @@ const ListUsers: React.FC = () => {
   const [tempEmail, setTempEmail] = useState<string>("");
   const [tempPassword, setTempPassword] = useState<string>("");
 
+  // Fetch users from API
   const fetchUsers = async () => {
     try {
       const response = await axios.get<User[]>(API_BASE_URL);
@@ -35,6 +36,11 @@ const ListUsers: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Delete a user
   const handleDelete = async (id: string) => {
     try {
       await axios.delete(`${API_BASE_URL}/${id}`);
@@ -45,6 +51,7 @@ const ListUsers: React.FC = () => {
     }
   };
 
+  // Save updated user data
   const handleSave = async (id: string) => {
     try {
       await axios.put(`${API_BASE_URL}/${id}`, {
@@ -60,87 +67,110 @@ const ListUsers: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
+  // Render each user in the list
   const renderItem = ({ item }: { item: User }) => (
     <View style={styles.userContainer}>
-    {editableUserId === item._id ? (
-      <>
-        <TextInput
-          style={styles.input}
-          value={tempUsername}
-          onChangeText={setTempUsername}
-        />
-        <TextInput
-          style={styles.input}
-          value={tempEmail}
-          onChangeText={setTempEmail}
-        />
-        <TextInput
-          style={styles.input}
-          value={tempPassword}
-          onChangeText={setTempPassword}  
-        />
-        <TouchableOpacity
-          style={[styles.button, styles.saveButton]}
-          onPress={() => handleSave(item._id)}
-        >
-          <Text style={styles.buttonText}>Save</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.cancelButton]}
-          onPress={() => setEditableUserId(null)}
-        >
-          <Text style={styles.buttonText}>Cancel</Text>
-        </TouchableOpacity>
-      </>
-    ) : (
-      <>
-        <Text style={styles.text}>
-          {item.username} - {item.email} - {item.password}
-        </Text>
-        <TouchableOpacity
-          style={[styles.button, styles.editButton]}
-          onPress={() => {
-            setEditableUserId(item._id);
-            setTempUsername(item.username);
-            setTempEmail(item.email);
-            setTempPassword(item.password);
-          }}
-        >
-          <Text style={styles.buttonText}>Edit</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.deleteButton]}
-          onPress={() => handleDelete(item._id)}
-        >
-          <Text style={styles.buttonText}>Delete</Text>
-        </TouchableOpacity>
-      </>
-    )}
-  </View>
+      {editableUserId === item._id ? (
+        <>
+          <TextInput
+            style={styles.input}
+            value={tempUsername}
+            onChangeText={setTempUsername}
+          />
+          <TextInput
+            style={styles.input}
+            value={tempEmail}
+            onChangeText={setTempEmail}
+          />
+          <TextInput
+            style={styles.input}
+            value={tempPassword}
+            onChangeText={setTempPassword}
+            secureTextEntry
+          />
+          <TouchableOpacity
+            style={[styles.button, styles.saveButton]}
+            onPress={() => handleSave(item._id)}
+          >
+            <Text style={styles.buttonText}>Save</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
+            onPress={() => setEditableUserId(null)}
+          >
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          <Text style={styles.text}>
+            <Text style={styles.boldText}>Username:</Text> {item.username} {"\n"}
+            <Text style={styles.boldText}>Email:</Text> {item.email}
+          </Text>
+          <TouchableOpacity
+            style={[styles.button, styles.editButton]}
+            onPress={() => {
+              setEditableUserId(item._id);
+              setTempUsername(item.username);
+              setTempEmail(item.email);
+              setTempPassword(item.password);
+            }}
+          >
+            <Text style={styles.buttonText}>Edit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.deleteButton]}
+            onPress={() => handleDelete(item._id)}
+          >
+            <Text style={styles.buttonText}>Delete</Text>
+          </TouchableOpacity>
+        </>
+      )}
+    </View>
   );
 
   return (
-    <FlatList
-      data={users}
-      renderItem={renderItem}
-      keyExtractor={(item) => item._id}
-    />
+    <View style={styles.container}>
+      <Text style={styles.heading}>Users List</Text>
+      <FlatList
+        data={users}
+        renderItem={renderItem}
+        keyExtractor={(item) => item._id}
+        ListEmptyComponent={<Text style={styles.emptyText}>No users found.</Text>}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#f4f4f4",
+  },
+  heading: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 12,
+    color: "#333",
+    textAlign: "center",
+  },
   userContainer: {
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    marginBottom: 8,
   },
   text: {
     fontSize: 16,
     marginBottom: 8,
+    color: "#333",
+  },
+  boldText: {
+    fontWeight: "bold",
+    color: "#000",
   },
   input: {
     height: 40,
@@ -156,14 +186,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginVertical: 4,
     alignItems: "center",
-    maxWidth: 100,
-    alignSelf: "flex-end",
-}, 
+    alignSelf: "flex-start",
+  },
   saveButton: {
     backgroundColor: "green",
   },
   cancelButton: {
-    backgroundColor: "red",
+    backgroundColor: "gray",
   },
   editButton: {
     backgroundColor: "blue",
@@ -172,11 +201,15 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
   },
   buttonText: {
-    color: "brown",
+    color: "white",
     fontWeight: "bold",
   },
-      
-
+  emptyText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#888",
+    marginTop: 20,
+  },
 });
 
 export default ListUsers;
