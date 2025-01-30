@@ -19,6 +19,7 @@ interface Review {
   text: string;
   rating: number;
   genre: string;
+  userId: { _id: string; username: string } | null;
   createdAt: Date
 }
 
@@ -34,8 +35,8 @@ const ListReviews: React.FC = () => {
   const fetchReviews = async () => {
     try {
       const response = await axios.get(API_BASE_URL);
-      console.log(response.data); // Debug the API response
-      setReviews(response.data.data); // Access the `data` property
+      console.log("Fetched Reviews:", response.data); // Debug the API response
+      setReviews(response.data); // Access the `data` property
     } catch (error) {
       console.error(error); // Log detailed error for debugging
       Alert.alert("Error", "Failed to fetch reviews.");
@@ -75,65 +76,65 @@ const ListReviews: React.FC = () => {
 
   const renderItem = ({ item }: { item: Review }) => (
     <View style={styles.ReviewContainer}>
-    {editableUserId === item._id ? (
-      <>
-        <TextInput
-          style={styles.input}
-          value={tempTitle}
-          onChangeText={setTempTitle}
-        />
-        <TextInput
-          style={styles.input}
-          value={tempAuthor}
-          onChangeText={setTempAuthor}
-        />
-        <TextInput
-          style={styles.input}
-          value={tempText}
-          onChangeText={setTempText} 
-          multiline={true}
-    numberOfLines={4} 
-        />
-        <TouchableOpacity
-          style={[styles.button, styles.saveButton]}
-          onPress={() => handleSave(item._id)}
-        >
-          <Text style={styles.buttonText}>Save</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.cancelButton]}
-          onPress={() => setEditableUserId(null)}
-        >
-          <Text style={styles.buttonText}>Cancel</Text>
-        </TouchableOpacity>
-      </>
-    ) : (
-      <>
-        <Text style={styles.text}>
-          {item.title} - {item.author} - {item.text} - {item.genre}. I give it a {item.rating}
-        </Text>
-        <TouchableOpacity
-          style={[styles.button, styles.editButton]}
-          onPress={() => {
-            setEditableUserId(item._id);
-            setTempTitle(item.title);
-            setTempAuthor(item.author);
-            setTempText(item.text);
-            setTempGenre(item.genre);
-            setTempRating(item.rating)
-          }}
-        >
-          <Text style={styles.buttonText}>Edit</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.deleteButton]}
-          onPress={() => handleDelete(item._id)}
-        >
-          <Text style={styles.buttonText}>Delete</Text>
-        </TouchableOpacity>
-      </>
-    )}
-  </View>
+      {/* {editableUserId === item._id ? ( */}
+        <>
+          <TextInput
+            style={styles.input}
+            value={tempTitle}
+            onChangeText={setTempTitle}
+          />
+          <TextInput
+            style={styles.input}
+            value={tempAuthor}
+            onChangeText={setTempAuthor}
+          />
+          <TextInput
+            style={styles.input}
+            value={tempText}
+            onChangeText={setTempText}
+            multiline={true}
+            numberOfLines={4}
+          />
+          <TouchableOpacity
+            style={[styles.button, styles.saveButton]}
+            onPress={() => handleSave(item._id)}
+          >
+            <Text style={styles.buttonText}>Save</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
+            onPress={() => setEditableUserId(null)}
+          >
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          <Text style={styles.text}>
+            {item.title} - {item.author} - {item.text} - {item.genre}. I give it a {item.rating}. By {item.userId ? item.userId.username : "Unknown"} {"\n"} 
+          </Text>
+          <TouchableOpacity
+            style={[styles.button, styles.editButton]}
+            onPress={() => {
+              setEditableUserId(item._id);
+              setTempTitle(item.title);
+              setTempAuthor(item.author);
+              setTempText(item.text);
+              setTempGenre(item.genre);
+              setTempRating(item.rating)
+            }}
+          >
+            <Text style={styles.buttonText}>Edit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.deleteButton]}
+            onPress={() => handleDelete(item._id)}
+          >
+            <Text style={styles.buttonText}>Delete</Text>
+          </TouchableOpacity>
+        </>
+      )
+    </View>
   );
 
   return (
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     maxWidth: 100,
     alignSelf: "flex-end",
-}, 
+  },
   saveButton: {
     backgroundColor: "green",
   },
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
     color: "brown",
     fontWeight: "bold",
   },
-      
+
 
 });
 

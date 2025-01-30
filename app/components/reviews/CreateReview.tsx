@@ -21,7 +21,7 @@ const CreateReview: React.FC = () => {
   const [genre, setGenre] = useState<string>("");
 
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/api/user`)
+    axios.get("http://192.168.0.49:3001/api/user")
       .then(res => {
         console.log("Users API Raw Response:", res.data); // Log full response
         if (Array.isArray(res.data)) {

@@ -53,19 +53,24 @@ const ListUsers: React.FC = () => {
 
   // Save updated user data
   const handleSave = async (id: string) => {
+    if (!tempUsername || !tempEmail) {
+      Alert.alert("Error", "Username and email are required.");
+      return;
+    }
     try {
       await axios.put(`${API_BASE_URL}/${id}`, {
         username: tempUsername,
         email: tempEmail,
-        password: tempPassword,
+        password: tempPassword || undefined, // 🔥 Avoid sending an empty password
       });
       Alert.alert("Success", "User updated!");
       setEditableUserId(null);
-      fetchUsers();
+      fetchUsers(); // ✅ Reload list after updating
     } catch (error) {
       Alert.alert("Error", "Failed to update user.");
     }
   };
+  
 
   // Render each user in the list
   const renderItem = ({ item }: { item: User }) => (
@@ -113,7 +118,7 @@ const ListUsers: React.FC = () => {
               setEditableUserId(item._id);
               setTempUsername(item.username);
               setTempEmail(item.email);
-              setTempPassword(item.password);
+              setTempPassword("");
             }}
           >
             <Text style={styles.buttonText}>Edit</Text>
