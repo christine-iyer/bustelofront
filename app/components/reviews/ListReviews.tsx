@@ -280,16 +280,17 @@ const ListReviews: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#640D5F",
     alignItems: "center",
     justifyContent: "center",
   },
   reviewContainer: {
     width: width * 0.8,
-    backgroundColor: "#fff",
+    backgroundColor: "#fff2af",
     borderRadius: 10,
     padding: 20,
     marginHorizontal: 10,
-    shadowColor: "#000",
+    shadowColor: "#df6d2d",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -312,7 +313,7 @@ const styles = StyleSheet.create({
   genre: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#555",
+    color: "#d39d55",
   },
   rating: {
     fontSize: 14,
