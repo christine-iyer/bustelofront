@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import axios from "axios";
 
-const API_BASE_URL = "http://192.168.0.49:3001/api/review";
+const API_BASE_URL = "http://192.168.1.12:3001/api/review";
 
 interface Review {
   _id: string;
@@ -35,13 +35,25 @@ const ListReviews: React.FC = () => {
   const fetchReviews = async () => {
     try {
       const response = await axios.get(API_BASE_URL);
-      console.log("Fetched Reviews:", response.data); // Debug the API response
-      setReviews(response.data); // Access the `data` property
+      console.log("Fetched Reviews:", response.data); // ✅ Debug API response
+  
+      if (Array.isArray(response.data)) {
+        setReviews(response.data); // ✅ If API directly returns an array
+      } else if (Array.isArray(response.data.data)) {
+        setReviews(response.data.data); // ✅ If API wraps the array inside `data`
+      } else if (Array.isArray(response.data.reviews)) {
+        setReviews(response.data.reviews); // ✅ If API wraps the array inside `reviews`
+      } else {
+        console.error("Unexpected API format:", response.data);
+        setReviews([]); // Prevents `.map` error
+      }
     } catch (error) {
-      console.error(error); // Log detailed error for debugging
+      console.error("Error fetching reviews:", error);
       Alert.alert("Error", "Failed to fetch reviews.");
     }
   };
+  
+  
 
   const handleDelete = async (id: string) => {
     try {
@@ -76,7 +88,8 @@ const ListReviews: React.FC = () => {
 
   const renderItem = ({ item }: { item: Review }) => (
     <View style={styles.ReviewContainer}>
-      {/* {editableUserId === item._id ? ( */}
+      {editableUserId === item._id ? (
+        // Editing mode
         <>
           <TextInput
             style={styles.input}
@@ -109,19 +122,21 @@ const ListReviews: React.FC = () => {
           </TouchableOpacity>
         </>
       ) : (
+        // View mode
         <>
           <Text style={styles.text}>
-            {item.title} - {item.author} - {item.text} - {item.genre}. I give it a {item.rating}. By {item.userId ? item.userId.username : "Unknown"} {"\n"} 
+            {item.title} - {item.author} - {item.text} - {item.genre}. 
+            I give it a {item.rating}. By {item.userId ? item.userId.username : "Unknown"}
           </Text>
           <TouchableOpacity
             style={[styles.button, styles.editButton]}
             onPress={() => {
-              setEditableUserId(item._id);
-              setTempTitle(item.title);
+              setEditableUserId(item._id);  // ✅ Set editable review ID
+              setTempTitle(item.title); 
               setTempAuthor(item.author);
               setTempText(item.text);
               setTempGenre(item.genre);
-              setTempRating(item.rating)
+              setTempRating(item.rating);
             }}
           >
             <Text style={styles.buttonText}>Edit</Text>
@@ -133,9 +148,10 @@ const ListReviews: React.FC = () => {
             <Text style={styles.buttonText}>Delete</Text>
           </TouchableOpacity>
         </>
-      )
+      )}
     </View>
   );
+
 
   return (
     <FlatList
@@ -189,6 +205,9 @@ const styles = StyleSheet.create({
     color: "brown",
     fontWeight: "bold",
   },
+  boldText: {
+    fontWeight: "bold"
+  }
 
 
 });

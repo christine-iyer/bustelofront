@@ -4,7 +4,9 @@ import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 
 // Replace localhost with your machine's IP address
-const API_BASE_URL = "http://192.168.0.49:3001/api/review";
+const API_BASE_URL = "http://192.168.1.12:3001/api/review";
+//leah's 192.168.1.12
+//chris' 192.168.0.49
 
 interface User {
   _id: string;
@@ -21,7 +23,7 @@ const CreateReview: React.FC = () => {
   const [genre, setGenre] = useState<string>("");
 
   useEffect(() => {
-    axios.get("http://192.168.0.49:3001/api/user")
+    axios.get("http://192.168.1.12:3001/api/user")
       .then(res => {
         console.log("Users API Raw Response:", res.data); // Log full response
         if (Array.isArray(res.data)) {
@@ -40,11 +42,11 @@ const CreateReview: React.FC = () => {
   }, []);
   const handleSubmit = async () => {
     if (!selectedUser) {
-      Alert.alert("Error", "Please at least select a user in order to write a review!");
+      Alert.alert("Error", "Please select a user in order to write a review!");
       return;
     }
     try {
-      await axios.post(`${API_BASE_URL}/api/review`, { 
+      const response = await axios.post(API_BASE_URL, {  // ✅ Corrected the API request
         userId: selectedUser, 
         title, 
         author, 
@@ -52,19 +54,24 @@ const CreateReview: React.FC = () => {
         rating: Number(rating), 
         genre
       });
+      console.log("Review Created:", response.data); // ✅ Debugging response
       Alert.alert("Success", "Review written!");
+      
+      // Reset form fields
       setTitle("");
       setAuthor("");
       setText("");
       setGenre("");
       setRating(0);
     } catch (error: any) {
+      console.error("Error creating review:", error.response?.data || error);
       Alert.alert(
         "Error",
         error.response?.data?.message || "Something went wrong!"
       );
     }
   };
+  
 
   return (
     <View style={styles.form}>
