@@ -72,13 +72,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   button: {
-    backgroundColor:"red"
+    backgroundColor:"white"
   },
   buttonText: {
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 4,
-    backgroundColor: "#007bff",
+    backgroundColor: "#EB5B00",
     alignItems: "center",
     maxWidth: 100,
     maxHeight: 90,
