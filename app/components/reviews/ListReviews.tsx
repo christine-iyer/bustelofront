@@ -281,11 +281,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#640D5F",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center",
   },
   reviewContainer: {
-    width: width * 0.8,
+    width: width * 0.95,
     backgroundColor: "#fff2af",
     borderRadius: 10,
     padding: 20,
