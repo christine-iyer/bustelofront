@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import axios from "axios";
 
-const API_BASE_URL = "http://192.168.1.12:3001/api/user";
+const API_BASE_URL = "http://192.168.0.49:3001/api/user";
 
 interface User {
   _id: string;
