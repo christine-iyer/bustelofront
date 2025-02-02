@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import axios from "axios";
 
-const API_BASE_URL = "http://192.168.1.12:3001/api/user";
+const API_BASE_URL = "http://localhost:3001/api/user";
 
 const CreateUserForm: React.FC = () => {
   const [username, setUsername] = useState<string>("");
