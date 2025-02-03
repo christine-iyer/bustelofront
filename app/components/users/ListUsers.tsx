@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  FlatList,
-  TextInput,
-} from "react-native";
+import {View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, TextInput, Platform} from "react-native";
 import axios from "axios";
 
 const API_BASE_URL = "http://192.168.0.49:3001/api/user";
@@ -186,6 +178,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   button: {
+    backgroundColor: Platform.select({
+      ios:'blue',
+      android:'green'
+    }),
+    
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 4,
