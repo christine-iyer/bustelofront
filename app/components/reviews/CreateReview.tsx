@@ -88,14 +88,6 @@ const CreateReview: React.FC = () => {
       <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
       <TextInput style={styles.input} placeholder="Author" value={author} onChangeText={setAuthor} />
       <TextInput style={styles.input} placeholder="Text" value={text} onChangeText={setText} />
-      <TextInput
-        style={styles.input}
-        placeholder="Rating (1-5)"
-        keyboardType="numeric"
-        value={rating ? rating.toString() : ""}
-        onChangeText={(value) => setRating(parseInt(value) || 0)}
-      />
-
       <Picker style={styles.input} selectedValue={genre} onValueChange={(itemValue) => setGenre(itemValue)}>
         <Picker.Item label="Select Genre" value="" />
         <Picker.Item label="Action" value="Action" />
@@ -107,6 +99,8 @@ const CreateReview: React.FC = () => {
         <Picker.Item label="Mystery" value="Mystery" />
         <Picker.Item label="Romance" value="Romance" />
       </Picker>
+
+
       <UploadImage onUpload={(urls) => {
         console.log("Uploaded image URLs:", urls);
         setImageUrls([...imageUrls, ...urls]);
@@ -119,7 +113,15 @@ const CreateReview: React.FC = () => {
             <Image key={index} source={{ uri: img }} style={{ width: 80, height: 80, margin: 5 }} />
           ))}
         </ScrollView>
+
       )}
+            <TextInput
+        style={styles.input}
+        placeholder="Rating (1-5)"
+        keyboardType="numeric"
+        value={rating ? rating.toString() : ""}
+        onChangeText={(value) => setRating(parseInt(value) || 0)}
+      />
 
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Submit your Details</Text>

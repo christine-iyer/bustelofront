@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#640D5F",
-    alignItems: "flex-start",
+    // alignItems: "flex-start",
     justifyContent: "center",
   },
   reviewContainer: {
