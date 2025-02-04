@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, FlatList, Dimensions, Animated, ScrollView, Image } from "react-native";
 import axios from "axios";
 
-const API_BASE_URL = "http://192.168.0.49:3001/api/review";
+const API_BASE_URL = "http://192.168.1.12:3001/api/review";
 const { width } = Dimensions.get("window");
 
 interface Review {
@@ -20,6 +20,7 @@ const ListReviews: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList>(null);
+  
 
   useEffect(() => {
     const fetchReviews = async () => {

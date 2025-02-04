@@ -6,6 +6,7 @@ import HomeScreen from "./screens/HomeScreen";
  import ListUsers from "./components/users/ListUsers";
  import CreateReview from "./components/reviews/CreateReview";
  import ListReviews from "./components/reviews/ListReviews";
+ import ReviewGrid from "./components/reviews/ReviewGrid";
 //import PlaceholderOne from "./components/placeholderscreens/PlaceHolderOne";
 // import PlaceholderTwo from "./components/placeholderscreens/PlaceHolderTwo";
 // import PlaceholderThree from "./components/placeholderscreens/PlaceHolderThree";
@@ -31,6 +32,7 @@ export default function App() {
         <Stack.Screen name="ListUsers" component={ListUsers} options={{ title: "All Users" }} />
         <Stack.Screen name="CreateReview" component={CreateReview} options={{ title: "Write a Review" }} />
         <Stack.Screen name="ListReviews" component={ListReviews} options={{ title: "Read Reviews" }} />
+        <Stack.Screen name="FilteredReviews" component={ReviewGrid} options={{ title: "Read Reviews by User" }} />
       </Stack.Navigator>
     </NavigationContainer>
     </NavigationIndependentTree>

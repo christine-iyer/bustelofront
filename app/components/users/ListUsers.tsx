@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, TextInput, Platform} from "react-native";
 import axios from "axios";
 
-const API_BASE_URL = "http://192.168.0.49:3001/api/user";
+const API_BASE_URL = "http://192.168.1.12:3001/api/user";
 
 interface User {
   _id: string;
@@ -42,88 +42,100 @@ const ListUsers: React.FC = () => {
       Alert.alert("Error", "Failed to delete user.");
     }
   };
-
-  // Save updated user data
   const handleSave = async (id: string) => {
-    if (!tempUsername || !tempEmail) {
-      Alert.alert("Error", "Username and email are required.");
+    const updatedFields: Partial<User> = {};
+  
+    // Add only modified fields to the update object
+    if (tempUsername && tempUsername !== users.find((user) => user._id === id)?.username) {
+      updatedFields.username = tempUsername;
+    }
+    if (tempEmail && tempEmail !== users.find((user) => user._id === id)?.email) {
+      updatedFields.email = tempEmail;
+    }
+    if (tempPassword) {
+      updatedFields.password = tempPassword; // Update password only if provided
+    }
+  
+    // Ensure at least one field is being updated
+    if (Object.keys(updatedFields).length === 0) {
+      Alert.alert("No changes detected", "Please modify at least one field.");
       return;
     }
+  
     try {
-      await axios.put(`${API_BASE_URL}/${id}`, {
-        username: tempUsername,
-        email: tempEmail,
-        password: tempPassword || undefined, // 🔥 Avoid sending an empty password
-      });
+      await axios.put(`${API_BASE_URL}/${id}`, updatedFields);
       Alert.alert("Success", "User updated!");
       setEditableUserId(null);
-      fetchUsers(); // ✅ Reload list after updating
+      fetchUsers(); // Refresh user list
     } catch (error) {
-      Alert.alert("Error", "Failed to update user.");
+      Alert.alert("Error", "Failed to update user. Please check your input.");
     }
   };
-  
-
   // Render each user in the list
   const renderItem = ({ item }: { item: User }) => (
+   
     <View style={styles.userContainer}>
-      {editableUserId === item._id ? (
-        <>
-          <TextInput
-            style={styles.input}
-            value={tempUsername}
-            onChangeText={setTempUsername}
-          />
-          <TextInput
-            style={styles.input}
-            value={tempEmail}
-            onChangeText={setTempEmail}
-          />
-          <TextInput
-            style={styles.input}
-            value={tempPassword}
-            onChangeText={setTempPassword}
-            secureTextEntry
-          />
-          <TouchableOpacity
-            style={[styles.button, styles.saveButton]}
-            onPress={() => handleSave(item._id)}
-          >
-            <Text style={styles.buttonText}>Save</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, styles.cancelButton]}
-            onPress={() => setEditableUserId(null)}
-          >
-            <Text style={styles.buttonText}>Cancel</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <>
-          <Text style={styles.text}>
-            <Text style={styles.boldText}>Username:</Text> {item.username} {"\n"}
-            <Text style={styles.boldText}>Email:</Text> {item.email}
-          </Text>
-          <TouchableOpacity
-            style={[styles.button, styles.editButton]}
-            onPress={() => {
-              setEditableUserId(item._id);
-              setTempUsername(item.username);
-              setTempEmail(item.email);
-              setTempPassword("");
-            }}
-          >
-            <Text style={styles.buttonText}>Edit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, styles.deleteButton]}
-            onPress={() => handleDelete(item._id)}
-          >
-            <Text style={styles.buttonText}>Delete</Text>
-          </TouchableOpacity>
-        </>
-      )}
-    </View>
+    {editableUserId === item._id ? (
+      <>
+        <TextInput
+          style={styles.input}
+          placeholder="Edit Username"
+          value={tempUsername ?? ""} // Ensure value is always a string
+          onChangeText={setTempUsername}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Edit Email"
+          value={tempEmail ?? ""} // Ensure value is always a string
+          onChangeText={setTempEmail}
+          keyboardType="email-address"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Edit Password (optional)"
+          value={tempPassword ?? ""} // Ensure value is always a string
+          onChangeText={setTempPassword}
+          secureTextEntry
+        />
+        <TouchableOpacity
+          style={[styles.button, styles.saveButton]}
+          onPress={() => handleSave(item._id)}
+        >
+          <Text style={styles.buttonText}>Save</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.cancelButton]}
+          onPress={() => setEditableUserId(null)}
+        >
+          <Text style={styles.buttonText}>Cancel</Text>
+        </TouchableOpacity>
+      </>
+    ) : (
+      <>
+        <Text style={styles.text}>
+          <Text style={styles.boldText}>Username:</Text> {item.username} {"\n"}
+          <Text style={styles.boldText}>Email:</Text> {item.email}
+        </Text>
+        <TouchableOpacity
+          style={[styles.button, styles.editButton]}
+          onPress={() => {
+            setEditableUserId(item._id);
+            setTempUsername(item.username ?? ""); // Default to empty string
+            setTempEmail(item.email ?? ""); // Default to empty string
+            setTempPassword(""); // Clear password input
+          }}
+        >
+          <Text style={styles.buttonText}>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.deleteButton]}
+          onPress={() => handleDelete(item._id)}
+        >
+          <Text style={styles.buttonText}>Delete</Text>
+        </TouchableOpacity>
+      </>
+    )}
+  </View>
   );
 
   return (
@@ -180,7 +192,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: Platform.select({
       ios:'blue',
-      android:'green'
+      android:'red'
     }),
     
     paddingVertical: 8,
