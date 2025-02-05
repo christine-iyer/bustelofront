@@ -2,15 +2,12 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "./screens/HomeScreen";
- import CreateUser from "./components/users/CreateUser";
- import ListUsers from "./components/users/ListUsers";
- import CreateReview from "./components/reviews/CreateReview";
- import ListReviews from "./components/reviews/ListReviews";
- import ReviewGrid from "./components/reviews/ReviewGrid";
-//import PlaceholderOne from "./components/placeholderscreens/PlaceHolderOne";
-// import PlaceholderTwo from "./components/placeholderscreens/PlaceHolderTwo";
-// import PlaceholderThree from "./components/placeholderscreens/PlaceHolderThree";
-// import PlaceholderFour from "./components/placeholderscreens/PlaceHolderFour";
+ import CreateUser from "./CreateUser";
+ import ListUsers from "./ListUsers";
+ import CreateReview from "./CreateReview";
+ import ListReviews from "./ListReviews";
+
+
 import { NavigationIndependentTree } from "@react-navigation/native";
 
 const Stack = createNativeStackNavigator();
@@ -32,7 +29,6 @@ export default function App() {
         <Stack.Screen name="ListUsers" component={ListUsers} options={{ title: "All Users" }} />
         <Stack.Screen name="CreateReview" component={CreateReview} options={{ title: "Write a Review" }} />
         <Stack.Screen name="ListReviews" component={ListReviews} options={{ title: "Read Reviews" }} />
-        <Stack.Screen name="FilteredReviews" component={ReviewGrid} options={{ title: "Read Reviews by User" }} />
       </Stack.Navigator>
     </NavigationContainer>
     </NavigationIndependentTree>
