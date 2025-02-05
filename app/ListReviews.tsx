@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, FlatList, Dimensions, Animated, ScrollView, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  Animated,
+  ScrollView,
+  Image,
+  TextInput,
+} from "react-native";
 import axios from "axios";
 
 const API_BASE_URL = "http://192.168.0.49:3001/api/review";
@@ -13,14 +23,14 @@ interface Review {
   rating: number;
   genre: string;
   userId: { _id: string; username: string } | null;
-  images?: string[]; // Added images property
+  images?: string[];
 }
 
 const ListReviews: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList>(null);
-  
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -34,6 +44,10 @@ const ListReviews: React.FC = () => {
     fetchReviews();
   }, []);
 
+  const filteredReviews = reviews.filter((review) =>
+    review.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const renderItem = ({ item }: { item: Review }) => (
     <View style={styles.reviewContainer}>
       <Text style={styles.title}>{item.title}</Text>
@@ -44,9 +58,17 @@ const ListReviews: React.FC = () => {
       <Text style={styles.genre}>Genre: {item.genre}</Text>
       <Text style={styles.rating}>Rating: {item.rating}/5</Text>
       {item.images && item.images.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagesContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.imagesContainer}
+        >
           {item.images.map((imageUri, index) => (
-            <Image key={index} source={{ uri: imageUri }} style={styles.reviewImage} />
+            <Image
+              key={index}
+              source={{ uri: imageUri }}
+              style={styles.reviewImage}
+            />
           ))}
         </ScrollView>
       )}
@@ -55,9 +77,15 @@ const ListReviews: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search by title..."
+        value={searchQuery}
+        onChangeText={(text) => setSearchQuery(text)}
+      />
       <FlatList
         ref={flatListRef}
-        data={reviews}
+        data={filteredReviews}
         renderItem={renderItem}
         keyExtractor={(item) => item._id}
         horizontal
@@ -68,6 +96,9 @@ const ListReviews: React.FC = () => {
           [{ nativeEvent: { contentOffset: { x: scrollX } } }],
           { useNativeDriver: false }
         )}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No reviews found.</Text>
+        }
       />
     </View>
   );
@@ -77,8 +108,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#640D5F",
-    // alignItems: "flex-start",
     justifyContent: "center",
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    margin: 10,
+    backgroundColor: "#fff",
   },
   reviewContainer: {
     width: width * 0.95,
@@ -124,6 +163,12 @@ const styles = StyleSheet.create({
     height: 100,
     marginRight: 8,
     borderRadius: 8,
+  },
+  emptyText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#fff",
+    marginTop: 20,
   },
 });
 

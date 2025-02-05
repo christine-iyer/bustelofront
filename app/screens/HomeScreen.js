@@ -8,7 +8,7 @@ export default function HomeScreen({ navigation }) {
       <Button title="View All Users" onPress={() => navigation.navigate('ListUsers')} />
       <Button title="Write a Book Review" onPress={() => navigation.navigate('CreateReview')} />
       <Button title="Read Book Reviews" onPress={() => navigation.navigate('ListReviews')} />
-      <Button title="Read Book Reviews by Author" onPress={() => navigation.navigate('FilteredReviews')} />  
+      <Button title="Read Book Reviews by Author" onPress={() => navigation.navigate('ReviewGrid')} />  
     </View>
   );
 }

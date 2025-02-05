@@ -6,9 +6,9 @@ import HomeScreen from "./screens/HomeScreen";
  import ListUsers from "./ListUsers";
  import CreateReview from "./CreateReview";
  import ListReviews from "./ListReviews";
-
-
+ import ReviewGrid from "./ReviewGrid";
 import { NavigationIndependentTree } from "@react-navigation/native";
+
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +29,8 @@ export default function App() {
         <Stack.Screen name="ListUsers" component={ListUsers} options={{ title: "All Users" }} />
         <Stack.Screen name="CreateReview" component={CreateReview} options={{ title: "Write a Review" }} />
         <Stack.Screen name="ListReviews" component={ListReviews} options={{ title: "Read Reviews" }} />
+        <Stack.Screen name="ReviewGrid" component={ReviewGrid} options={{ title: "Read Reviews by Author" }} />
+      
       </Stack.Navigator>
     </NavigationContainer>
     </NavigationIndependentTree>

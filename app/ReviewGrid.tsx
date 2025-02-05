@@ -1,18 +1,19 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
+  FlatList,
+  Dimensions,
+  Animated,
+  ScrollView,
+  Image,
+  TextInput,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useLocalSearchParams, useRouter } from "expo-router";
 
-const API_BASE_URL = "http://192.168.1.12:3001/api/review";
+const API_BASE_URL = "http://192.168.0.49:3001/api/review";
+const { width } = Dimensions.get("window");
 
 interface Review {
   _id: string;
@@ -26,73 +27,76 @@ interface Review {
 }
 
 const ReviewGrid: React.FC = () => {
-  const { title: selectedBookTitle = "" } = useLocalSearchParams();
-  const router = useRouter();
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>(""); // State for search query
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const flatListRef = useRef<FlatList>(null);
 
-  const { data: reviews, isLoading, error } = useQuery({
-    queryKey: ["reviews"],
-    queryFn: async () => {
-      const response = await axios.get(API_BASE_URL);
-      return response.data.data;
-    },
-  });
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get(API_BASE_URL);
+        setReviews(response.data.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchReviews();
+  }, []);
 
-  const bookTitles = useMemo(() => {
-    if (!reviews) return [];
-    return Array.from(new Set(reviews.map((review) => review.title)));
-  }, [reviews]);
+  // Function to filter reviews based on search query
+  const filteredReviews = reviews.filter((review) => review.author &&
+    review.author.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const filteredReviews = useMemo(() => {
-    if (!reviews) return [];
-    return selectedBookTitle
-      ? reviews.filter((review) => review.title === selectedBookTitle)
-      : reviews;
-  }, [reviews, selectedBookTitle]);
+  const renderItem = ({ item }: { item: Review }) => (
+    <View style={styles.reviewContainer}>
+      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.author}>
+        By {item.author} ({item.userId ? item.userId.username : "Unknown"})
+      </Text>
+      <Text style={styles.text}>{item.text}</Text>
+      <Text style={styles.genre}>Genre: {item.genre}</Text>
+      <Text style={styles.rating}>Rating: {item.rating}/5</Text>
+      {item.images && item.images.length > 0 && (
+        <View
 
-  const handleTitleChange = (title: string) => {
-    router.replace({
-      pathname: "/FilteredReviews",
-      params: { title },
-    });
-  };
-
-  if (isLoading) return <ActivityIndicator size="large" color="blue" />;
-  if (error) return <Text style={styles.error}>Failed to load reviews.</Text>;
+          style={styles.imagesContainer}
+        >
+          {item.images.map((imageUri, index) => (
+            <Image
+              key={index}
+              source={{ uri: imageUri }}
+              style={styles.reviewImage}
+            />
+          ))}
+        </View>
+      )}
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Reviews</Text>
-
-      <View style={styles.filterContainer}>
-        <Text style={styles.filterLabel}>Filter by Book Title:</Text>
-        <Picker
-          selectedValue={selectedBookTitle}
-          style={styles.picker}
-          onValueChange={handleTitleChange}
-        >
-          <Picker.Item label="All Books" value="" />
-          {bookTitles.map((title, index) => (
-            <Picker.Item key={`${title}-${index}`} label={title} value={title} />
-          ))}
-        </Picker>
-      </View>
-
+      {/* Search Bar */}
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search by author..."
+        value={searchQuery}
+        onChangeText={(text) => setSearchQuery(text)}
+      />
       <FlatList
+        ref={flatListRef}
         data={filteredReviews}
+        renderItem={renderItem}
         keyExtractor={(item) => item._id}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card}>
-            <Text style={styles.cardTitle}>{item.title}</Text>
-            <Text style={styles.cardAuthor}>by {item.author}</Text>
-            <Text style={styles.cardUsername}>
-              Reviewed by: {item.userId?.username || "Unknown"}
-            </Text>
-            <Text style={styles.cardText}>{item.text}</Text>
-            <Text style={styles.cardRating}>⭐ {item.rating}/5</Text>
-            <Text style={styles.cardGenre}>Genre: {item.genre}</Text>
-          </TouchableOpacity>
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        snapToAlignment="center"
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+          { useNativeDriver: false }
         )}
-        ListEmptyComponent={<Text style={styles.emptyText}>No reviews found.</Text>}
       />
     </View>
   );
@@ -101,80 +105,62 @@ const ReviewGrid: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#f4f4f4",
+    backgroundColor: "#640D5F",
+    justifyContent: "center",
   },
-  heading: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 12,
-    color: "#333",
-    textAlign: "center",
-  },
-  filterContainer: {
-    marginBottom: 16,
-  },
-  filterLabel: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: "#333",
-  },
-  picker: {
+  searchBar: {
     height: 40,
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 4,
-    marginBottom: 8,
-  },
-  card: {
-    padding: 16,
-    backgroundColor: "#fff",
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    marginBottom: 12,
+    paddingHorizontal: 10,
+    margin: 10,
+    backgroundColor: "#fff",
   },
-  cardTitle: {
+  reviewContainer: {
+    width: width * 0.95,
+    backgroundColor: "#fff2af",
+    borderRadius: 10,
+    padding: 20,
+    marginHorizontal: 10,
+    shadowColor: "#df6d2d",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
+    marginBottom: 5,
   },
-  cardAuthor: {
+  author: {
     fontSize: 16,
-    color: "#555",
-  },
-  cardUsername: {
-    fontSize: 14,
-    color: "#777",
     fontStyle: "italic",
+    marginBottom: 10,
   },
-  cardText: {
+  text: {
     fontSize: 14,
-    color: "#555",
-    marginTop: 8,
+    marginBottom: 10,
   },
-  cardRating: {
-    fontSize: 16,
+  genre: {
+    fontSize: 14,
     fontWeight: "bold",
-    marginTop: 4,
-    color: "gold",
+    color: "#d39d55",
   },
-  cardGenre: {
+  rating: {
     fontSize: 14,
-    color: "#888",
-    marginTop: 4,
+    fontWeight: "bold",
+    color: "#d35400",
   },
-  emptyText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "#888",
-    marginTop: 20,
+  imagesContainer: {
+    marginTop: 10,
   },
-  error: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "red",
-    marginTop: 20,
+  reviewImage: {
+    width: 100,
+    height: 100,
+    marginRight: 8,
+    borderRadius: 8,
   },
 });
 
