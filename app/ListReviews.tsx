@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import axios from "axios";
 
-const API_BASE_URL = "http://192.168.0.49:3001/api/review";
+const API_BASE_URL = "https://franky-app-ix96j.ondigitalocean.app/api/review";
 const { width } = Dimensions.get("window");
 
 interface Review {

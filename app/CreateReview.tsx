@@ -5,7 +5,7 @@ import axios from "axios";
 import UploadImage from "./UploadImage";
 
 // Replace localhost with your machine's IP address
-const API_BASE_URL = "http://192.168.0.49:3001/api";
+const API_BASE_URL = "https://franky-app-ix96j.ondigitalocean.app/api";
 
 interface User {
   _id: string;
