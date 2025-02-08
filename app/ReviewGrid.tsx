@@ -35,8 +35,8 @@ const ReviewGrid: React.FC = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}`);
-        setReviews(response.data.data);
+        const response = await axios.get(`https://franky-app-ix96j.ondigitalocean.app/api`);
+        setReviews(response.data?.data || []);
       } catch (error) {
         console.error(error);
       }
@@ -45,7 +45,7 @@ const ReviewGrid: React.FC = () => {
   }, []);
 
   // Function to filter reviews based on search query
-  const filteredReviews = reviews.filter((review) => review.author &&
+  const filteredReviews = (reviews || []).filter((review) => review.author &&
     review.author.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -74,6 +74,13 @@ const ReviewGrid: React.FC = () => {
       )}
     </View>
   );
+  if (!reviews) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.emptyText}>Loading reviews...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

@@ -35,8 +35,9 @@ const ListReviews: React.FC = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}`);
-        setReviews(response.data.data);
+        const response = await axios.get(`https://franky-app-ix96j.ondigitalocean.app/api`);
+        console.log("API Response:", response.data); 
+        setReviews(response.data?.data || []);
       } catch (error) {
         console.error(error);
       }
@@ -44,11 +45,12 @@ const ListReviews: React.FC = () => {
     fetchReviews();
   }, []);
 
-  const filteredReviews = reviews.filter((review) =>
+  const filteredReviews = (reviews || []).filter((review) =>
     review.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const renderItem = ({ item }: { item: Review }) => (
+    
     <View style={styles.reviewContainer}>
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.author}>
@@ -74,6 +76,14 @@ const ListReviews: React.FC = () => {
       )}
     </View>
   );
+  if (!reviews) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.emptyText}>Loading reviews...</Text>
+      </View>
+    );
+  }
+
 
   return (
     <View style={styles.container}>

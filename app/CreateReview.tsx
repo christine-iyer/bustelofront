@@ -21,7 +21,7 @@ const CreateReview: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get(`${process.env.EXPO_PUBLIC_API_URL}/user`)
+      .get(`https://franky-app-ix96j.ondigitalocean.app/api/user`)
       .then((res) => {
         console.log("Users API Response:", res.data);
         if (Array.isArray(res.data)) {
@@ -45,7 +45,7 @@ const CreateReview: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/review`, {
+      const response = await axios.post(`https://franky-app-ix96j.ondigitalocean.app/api/review`, {
         userId: selectedUser,
         title,
         author,
@@ -54,7 +54,7 @@ const CreateReview: React.FC = () => {
         genre,
         images: imageUrls, // Send multiple images
       });
-      console.log("Review Created:", response.data, "ENV", process.env.EXPO_PUBLIC_API_URL);
+      console.log("Review Created:", response.data);
       Alert.alert("Success", "Review written!");
 
       // Reset form fields
