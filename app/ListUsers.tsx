@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@env";
+
 import React, { useState, useEffect } from "react";
 import {View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, TextInput, Platform} from "react-native";
 import axios from "axios";
@@ -21,7 +21,7 @@ const ListUsers: React.FC = () => {
   // Fetch users from API
   const fetchUsers = async () => {
     try {
-      const response = await axios.get<User[]>(API_BASE_URL);
+      const response = await axios.get<User[]>(`${process.env.EXPO_PUBLIC_API_URL}`);
       setUsers(response.data);
     } catch (error) {
       Alert.alert("Error", "Failed to fetch users.");
@@ -35,7 +35,7 @@ const ListUsers: React.FC = () => {
   // Delete a user
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`${API_BASE_URL}/${id}`);
+      await axios.delete(`${process.env.EXPO_PUBLIC_API_URL}/${id}`);
       Alert.alert("Success", "User deleted!");
       fetchUsers();
     } catch (error) {
@@ -63,7 +63,7 @@ const ListUsers: React.FC = () => {
     }
   
     try {
-      await axios.put(`${API_BASE_URL}/${id}`, updatedFields);
+      await axios.put(`${process.env.EXPO_PUBLIC_API_URL}/${id}`, updatedFields);
       Alert.alert("Success", "User updated!");
       setEditableUserId(null);
       fetchUsers(); // Refresh user list

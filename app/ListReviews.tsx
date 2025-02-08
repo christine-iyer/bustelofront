@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@env";
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -35,7 +35,7 @@ const ListReviews: React.FC = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(API_BASE_URL);
+        const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}`);
         setReviews(response.data.data);
       } catch (error) {
         console.error(error);

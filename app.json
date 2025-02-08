@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "bookAppFront",
-    "slug": "bookAppFront",
+    "name": "bookappfront",
+    "slug": "bookappfront",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

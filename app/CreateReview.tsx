@@ -1,4 +1,3 @@
-import { API_BASE_URL } from "@env";
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
@@ -22,7 +21,7 @@ const CreateReview: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL}/user`)
+      .get(`${process.env.EXPO_PUBLIC_API_URL}/user`)
       .then((res) => {
         console.log("Users API Response:", res.data);
         if (Array.isArray(res.data)) {
@@ -46,7 +45,7 @@ const CreateReview: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.post(`${API_BASE_URL}/review`, {
+      const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/review`, {
         userId: selectedUser,
         title,
         author,
@@ -55,7 +54,7 @@ const CreateReview: React.FC = () => {
         genre,
         images: imageUrls, // Send multiple images
       });
-      console.log("Review Created:", response.data);
+      console.log("Review Created:", response.data, "ENV", process.env.EXPO_PUBLIC_API_URL);
       Alert.alert("Success", "Review written!");
 
       // Reset form fields

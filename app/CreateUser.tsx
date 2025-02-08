@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@env";
+
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import axios from "axios";
@@ -15,7 +15,7 @@ const CreateUserForm: React.FC = () => {
     }
 
     try {
-      await axios.post(API_BASE_URL, { username, email, password });
+      await axios.post(`${process.env.EXPO_PUBLIC_API_URL}`, { username, email, password });
       Alert.alert("Success", "User created!");
       setUsername("");
       setEmail("");
