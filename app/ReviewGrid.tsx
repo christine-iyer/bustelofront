@@ -35,7 +35,7 @@ const ReviewGrid: React.FC = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(`https://franky-app-ix96j.ondigitalocean.app/api`);
+        const response = await axios.get(`https://franky-app-ix96j.ondigitalocean.app/api/review`);
         setReviews(response.data?.data || []);
       } catch (error) {
         console.error(error);

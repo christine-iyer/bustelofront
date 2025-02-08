@@ -8,11 +8,11 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to the Book & User Community!</Text>
-      <Button title="Create a User" onPress={() => router.push("/CreateUser")} />
-      <Button title="View All Users" onPress={() => router.push("/ListUsers")} />
-      <Button title="Write a Book Review" onPress={() => router.push("/CreateReview")} />
-      <Button title="Read Book Reviews" onPress={() => router.push("/ListReviews")} />
-      <Button title="Read Book Reviews by Author" onPress={() => router.push("/ReviewGrid")} />
+      <Button title="Create a User" onPress={() => router.push("./CreateUser")} />
+      <Button title="View All Users" onPress={() => router.push("./ListUsers")} />
+      <Button title="Write a Book Review" onPress={() => router.push("./CreateReview")} />
+      <Button title="Read Book Reviews" onPress={() => router.push("./ListReviews")} />
+      <Button title="Read Book Reviews by Author" onPress={() => router.push("./ReviewGrid")} />
     </View>
   );
 }
