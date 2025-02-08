@@ -35,7 +35,7 @@ const ListUsers: React.FC = () => {
   // Delete a user
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`https://franky-app-ix96j.ondigitalocean.app/api/user${id}`);
+      await axios.delete(`https://franky-app-ix96j.ondigitalocean.app/api/user/${id}`);
       Alert.alert("Success", "User deleted!");
       fetchUsers();
     } catch (error) {
@@ -63,7 +63,7 @@ const ListUsers: React.FC = () => {
     }
   
     try {
-      await axios.put(`https://franky-app-ix96j.ondigitalocean.app/api/${id}`, updatedFields);
+      await axios.put(`https://franky-app-ix96j.ondigitalocean.app/api/user/${id}`, updatedFields);
       Alert.alert("Success", "User updated!");
       setEditableUserId(null);
       fetchUsers(); // Refresh user list
