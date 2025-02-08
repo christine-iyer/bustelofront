@@ -1,8 +1,8 @@
+import { API_BASE_URL } from "@env";
 import React, { useState, useEffect } from "react";
 import {View, Text, TouchableOpacity, StyleSheet, Alert, FlatList, TextInput, Platform} from "react-native";
 import axios from "axios";
 
-const API_BASE_URL = "https://franky-app-ix96j.ondigitalocean.app/api/user";
 
 interface User {
   _id: string;

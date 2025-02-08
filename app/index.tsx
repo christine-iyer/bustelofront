@@ -1,38 +1,23 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import HomeScreen from "./screens/HomeScreen";
- import CreateUser from "./CreateUser";
- import ListUsers from "./ListUsers";
- import CreateReview from "./CreateReview";
- import ListReviews from "./ListReviews";
- import ReviewGrid from "./ReviewGrid";
-import { NavigationIndependentTree } from "@react-navigation/native";
+import { View, Text, Button, StyleSheet } from "react-native";
+import { useRouter } from "expo-router"; // ✅ Use Expo Router navigation
 
+export default function HomeScreen() {
+  const router = useRouter(); // ✅ Expo Router navigation
 
-const Stack = createNativeStackNavigator();
-
-export default function App() {
   return (
-    <NavigationIndependentTree>
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Home"
-        screenOptions={{
-          headerStyle: { backgroundColor: "#f194ff" },
-          headerTintColor: "#fff",
-          headerTitleStyle: { fontWeight: "bold" },
-        }}
-      >
-        <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Welcome" }} />
-        <Stack.Screen name="CreateUser" component={CreateUser} options={{ title: "Create User" }} />
-        <Stack.Screen name="ListUsers" component={ListUsers} options={{ title: "All Users" }} />
-        <Stack.Screen name="CreateReview" component={CreateReview} options={{ title: "Write a Review" }} />
-        <Stack.Screen name="ListReviews" component={ListReviews} options={{ title: "Read Reviews" }} />
-        <Stack.Screen name="ReviewGrid" component={ReviewGrid} options={{ title: "Read Reviews by Author" }} />
-      
-      </Stack.Navigator>
-    </NavigationContainer>
-    </NavigationIndependentTree>
+    <View style={styles.container}>
+      <Text style={styles.title}>Welcome to the Book & User Community!</Text>
+      <Button title="Create a User" onPress={() => router.push("/CreateUser")} />
+      <Button title="View All Users" onPress={() => router.push("/ListUsers")} />
+      <Button title="Write a Book Review" onPress={() => router.push("/CreateReview")} />
+      <Button title="Read Book Reviews" onPress={() => router.push("/ListReviews")} />
+      <Button title="Read Book Reviews by Author" onPress={() => router.push("/ReviewGrid")} />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: "center", padding: 16, backgroundColor: "#640D5F" },
+  title: { fontSize: 22, fontWeight: "bold", marginBottom: 30, textAlign: "center", padding: 30 },
+});

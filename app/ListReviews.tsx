@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@env";
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -12,7 +13,6 @@ import {
 } from "react-native";
 import axios from "axios";
 
-const API_BASE_URL = "https://franky-app-ix96j.ondigitalocean.app/api/review";
 const { width } = Dimensions.get("window");
 
 interface Review {
