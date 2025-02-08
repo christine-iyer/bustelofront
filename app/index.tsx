@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
-import { useRouter } from "expo-router"; // ✅ Use Expo Router navigation
+import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
-  const router = useRouter(); // ✅ Expo Router navigation
+  const router = useRouter();
 
   return (
     <View style={styles.container}>

@@ -8,7 +8,7 @@ export default function RootLayout() {
       <Stack.Screen name="ListUsers" options={{ title: "All Users" }} />
       <Stack.Screen name="CreateReview" options={{ title: "Write a Review" }} />
       <Stack.Screen name="ListReviews" options={{ title: "Read Reviews" }} />
-      <Stack.Screen name="ReviewGrid" options={{ title: "Read Reviews by Author" }} />
+      <Stack.Screen name="ReviewGrid" options={{ title: "Search Reviews" }} />
     </Stack>
   );
 }
