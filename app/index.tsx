@@ -18,6 +18,6 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 16, backgroundColor: "#640D5F" },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 30, textAlign: "center", padding: 30 },
+  container: { flex: 1, justifyContent: "center", padding: 16 },
+  title: { fontSize: 22, fontWeight: "bold", marginBottom: 30, textAlign: "center" },
 });
