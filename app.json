@@ -36,6 +36,7 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "entryPoint": "./node_modules/expo-router/entry" // Ensures expo-router is the entry point
   }
 }
