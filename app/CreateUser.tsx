@@ -7,7 +7,8 @@ const CreateUserForm: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   
-  const API_URL = "https://franky-app-ix96j.ondigitalocean.app/api/user";
+  const API_URL = "https://franky-app-ix96j.ondigitalocean.app/api/user"
+https://franky-app-ix96j.ondigitalocean.app/api/";
 
   const handleSubmit = async () => {
     if (!username || !email || !password) {
