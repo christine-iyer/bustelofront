@@ -7,7 +7,9 @@ const CreateUserForm: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  const API_URL = "https://franky-app-ix96j.ondigitalocean.app/api/user"; 
+  const API_URL = "https://franky-app-ix96j.ondigitalocean.app/api/user";
+
+  const handleSubmit = async () => {
     if (!username || !email || !password) {
       Alert.alert("Error", "All fields are required!");
       return;
@@ -16,7 +18,7 @@ const CreateUserForm: React.FC = () => {
     try {
       const response = await axios.post(
         API_URL,
-        { user: { username, email, password } },  // Wrapped in 'user' object
+        { username, email, password },  // ✅ Remove 'user' wrapper if unnecessary
         { headers: { "Content-Type": "application/json" } }
       );
 
@@ -28,7 +30,8 @@ const CreateUserForm: React.FC = () => {
       setEmail("");
       setPassword("");
     } catch (error: any) {
-      console.error("API Error:", error);
+      console.error("API Error:", error.response?.data || error.message || error);
+
       const errorMessage =
         error.response?.data?.message ||
         error.message ||
