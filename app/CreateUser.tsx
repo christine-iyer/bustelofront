@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import axios from "axios";
@@ -7,6 +6,8 @@ const CreateUserForm: React.FC = () => {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  
+  const API_URL = "https://franky-app-ix96j.ondigitalocean.app/api/user";
 
   const handleSubmit = async () => {
     if (!username || !email || !password) {
@@ -15,15 +16,25 @@ const CreateUserForm: React.FC = () => {
     }
 
     try {
-      await axios.post(`https://franky-app-ix96j.ondigitalocean.app/api/user`, { username, email, password });
-      Alert.alert("Success", "User created!");
+      const response = await axios.post(
+        API_URL,
+        { username, email, password },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      Alert.alert("Success", "User created successfully!");
+      console.log("Response:", response.data);
+      
+      // Reset fields
       setUsername("");
       setEmail("");
       setPassword("");
+
     } catch (error: any) {
+      console.error("API Error:", error.response?.data || error.message);
       Alert.alert(
         "Error",
-        error.response?.data?.message || "Something went wrong!"
+        error.response?.data?.message || "Something went wrong! Please try again."
       );
     }
   };
@@ -51,7 +62,7 @@ const CreateUserForm: React.FC = () => {
         secureTextEntry
       />
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit your Details</Text>
+        <Text style={styles.buttonText}>Submit</Text>
       </TouchableOpacity>
     </View>
   );
@@ -60,27 +71,30 @@ const CreateUserForm: React.FC = () => {
 const styles = StyleSheet.create({
   form: {
     marginBottom: 16,
+    paddingHorizontal: 10,
     borderStyle: "solid",
   },
   input: {
-    height: 40,
+    height: 44,
     borderColor: "#ccc",
     borderWidth: 1,
-    marginBottom: 8,
-    paddingHorizontal: 8,
-    borderRadius: 4,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    backgroundColor: "#fff",
   },
   button: {
-    backgroundColor:"white"
+    backgroundColor: "#EB5B00",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 6,
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonText: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 4,
-    backgroundColor: "#EB5B00",
-    alignItems: "center",
-    maxWidth: 100,
-    maxHeight: 90,
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
