@@ -7,9 +7,7 @@ const CreateUserForm: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  const API_URL = "https://franky-app-ix96j.ondigitalocean.app/api/users"; // Updated API endpoint
-                    https://franky-app-ix96j.ondigitalocean.app/api/user
-  const handleSubmit = async () => {
+  const API_URL = "https://franky-app-ix96j.ondigitalocean.app/api/user"; 
     if (!username || !email || !password) {
       Alert.alert("Error", "All fields are required!");
       return;
