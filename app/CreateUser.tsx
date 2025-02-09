@@ -6,37 +6,37 @@ const CreateUserForm: React.FC = () => {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  
-  const API_URL = "https://franky-app-ix96j.ondigitalocean.app/api/user";
 
-
+  const API_URL = "https://franky-app-ix96j.ondigitalocean.app/api/users"; // Updated API endpoint
+                    https://franky-app-ix96j.ondigitalocean.app/api/user
   const handleSubmit = async () => {
     if (!username || !email || !password) {
-      Alert.alert("Error", "All fields ar, well just username, so we can highlight your talent!");
+      Alert.alert("Error", "All fields are required!");
       return;
     }
 
     try {
       const response = await axios.post(
         API_URL,
-        { username, email, password },
+        { user: { username, email, password } },  // Wrapped in 'user' object
         { headers: { "Content-Type": "application/json" } }
       );
 
       Alert.alert("Success", "User created successfully!");
       console.log("Response:", response.data);
-      
+
       // Reset fields
       setUsername("");
       setEmail("");
       setPassword("");
-
     } catch (error: any) {
-      console.error("API Error:", error.response?.data || error.message);
-      Alert.alert(
-        "Error",
-        error.response?.data?.message || "Something went wrong! Please try again."
-      );
+      console.error("API Error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Something went wrong! Please try again.";
+
+      Alert.alert("Error", errorMessage);
     }
   };
 
@@ -50,14 +50,14 @@ const CreateUserForm: React.FC = () => {
       />
       <TextInput
         style={styles.input}
-        placeholder="Skip Email"
+        placeholder="Email"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
-        placeholder="Skip Password"
+        placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
