@@ -15,7 +15,7 @@ const CreateUserForm: React.FC = () => {
     }
 
     try {
-      await axios.post(`https://franky-app-ix96j.ondigitalocean.app/api`, { username, email, password });
+      await axios.post(`https://franky-app-ix96j.ondigitalocean.app/api/user`, { username, email, password });
       Alert.alert("Success", "User created!");
       setUsername("");
       setEmail("");
