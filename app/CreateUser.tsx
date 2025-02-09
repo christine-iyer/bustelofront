@@ -11,7 +11,7 @@ const CreateUserForm: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!username || !email || !password) {
-      Alert.alert("Error", "All fields are required!");
+      Alert.alert("Error", "All fields ar, well just username, so we can highlight your talent!");
       return;
     }
 
