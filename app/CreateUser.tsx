@@ -49,14 +49,14 @@ const CreateUserForm: React.FC = () => {
       />
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="Skip Email"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder="Skip Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
