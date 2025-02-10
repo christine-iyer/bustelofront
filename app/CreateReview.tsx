@@ -82,10 +82,12 @@ const CreateReview: React.FC = () => {
         )}
       </Picker>
 
-      <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
-      <TextInput style={styles.input} placeholder="Author" value={author} onChangeText={setAuthor} />
-      <TextInput style={styles.input} placeholder="Text" value={text} onChangeText={setText} />
-      <TextInput style={styles.input} placeholder="Text" value={genre} onChangeText={setGenre} />
+      <TextInput style={styles.input} placeholder="Required Text" value={title} onChangeText={setTitle} />
+      <TextInput style={styles.input} placeholder="Optional Text" value={author} onChangeText={setAuthor} />
+      <TextInput style={styles.input} placeholder="Optional Text" value={text} onChangeText={setText} />
+      <TextInput style={styles.input} placeholder="Optional Text" value={genre} onChangeText={setGenre} />
+      <TextInput style={styles.input} placeholder="Optional Text Rating (1-5)" keyboardType="numeric"
+       value={rating ? rating.toString() : ""} onChangeText={(value) => setRating(parseInt(value) || 0)}/>
       {/* <Picker style={styles.input} selectedValue={genre} onValueChange={(itemValue) => setGenre(itemValue)}>
         <Picker.Item label="Select Genre" value="" />
         <Picker.Item label="Action" value="Action" />
@@ -113,13 +115,7 @@ const CreateReview: React.FC = () => {
         </ScrollView>
 
       )}
-            <TextInput
-        style={styles.input}
-        placeholder="Rating (1-5)"
-        keyboardType="numeric"
-        value={rating ? rating.toString() : ""}
-        onChangeText={(value) => setRating(parseInt(value) || 0)}
-      />
+
 
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Submit your Details</Text>

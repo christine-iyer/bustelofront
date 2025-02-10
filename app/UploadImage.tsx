@@ -117,7 +117,7 @@ const UploadImage: React.FC<UploadImageProps> = ({ onUpload }) => {
 
   return (
     <View>
-      <Button title="Pick Files" onPress={pickImages} />
+      <Button title="Option to add photos" onPress={pickImages} />
       <ScrollView horizontal>
         {images.map((img, index) => (
           <Image
