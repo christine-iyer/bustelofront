@@ -1,16 +1,33 @@
-import { Stack } from "expo-router";
+import React from "react";
+import { View, Text, Button, StyleSheet } from "react-native";
+import { Stack, useRouter } from "expo-router";
 
-export default function RootLayout() {
-  console.log("Loading Stack...");
+export default function Layout() {
+  const router = useRouter();
 
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ title: "Home" }} />
-      <Stack.Screen name="CreateUser" options={{ title: "Create User" }} />
-      <Stack.Screen name="ListUsers" options={{ title: "List Users" }} />
-      <Stack.Screen name="CreateReview" options={{ title: "Create Review" }} />
-      <Stack.Screen name="ListReviews" options={{ title: "List Reviews" }} />
-      <Stack.Screen name="ReviewGrid" options={{ title: "Review Grid" }} />
-    </Stack>
+    <View style={{ flex: 1 }}>
+      {/* Navigation Bar */}
+      <View style={styles.navbar}>
+        <Button title="Home" onPress={() => router.push("/")} />
+        <Button title="Create User" onPress={() => router.push("/CreateUser")} />
+        <Button title="Users" onPress={() => router.push("/ListUsers")} />
+        <Button title="Write Review" onPress={() => router.push("/CreateReview")} />
+        <Button title="Reviews" onPress={() => router.push("/ListReviews")} />
+        <Button title="By Author" onPress={() => router.push("/ReviewGrid")} />
+      </View>
+
+      {/* Page Content */}
+      <Stack />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  navbar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10,
+    backgroundColor: "#EB5B00",
+  },
+});
