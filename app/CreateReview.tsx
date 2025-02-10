@@ -85,7 +85,8 @@ const CreateReview: React.FC = () => {
       <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
       <TextInput style={styles.input} placeholder="Author" value={author} onChangeText={setAuthor} />
       <TextInput style={styles.input} placeholder="Text" value={text} onChangeText={setText} />
-      <Picker style={styles.input} selectedValue={genre} onValueChange={(itemValue) => setGenre(itemValue)}>
+      <TextInput style={styles.input} placeholder="Text" value={genre} onChangeText={setGenre} />
+      {/* <Picker style={styles.input} selectedValue={genre} onValueChange={(itemValue) => setGenre(itemValue)}>
         <Picker.Item label="Select Genre" value="" />
         <Picker.Item label="Action" value="Action" />
         <Picker.Item label="Adventure" value="Adventure" />
@@ -96,7 +97,7 @@ const CreateReview: React.FC = () => {
         <Picker.Item label="Mystery" value="Mystery" />
         <Picker.Item label="Romance" value="Romance" />
       </Picker>
-
+ */}
 
       <UploadImage onUpload={(urls) => {
         console.log("Uploaded image URLs:", urls);
