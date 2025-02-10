@@ -7,7 +7,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to the Book & User Community!</Text>
+      <Text style={styles.title}>Welcome to Boostelo!</Text>
       <Button title="Create a User" onPress={() => router.push("./CreateUser")} />
       <Button title="View All Users" onPress={() => router.push("./ListUsers")} />
       <Button title="Write a Book Review" onPress={() => router.push("./CreateReview")} />
