@@ -1,23 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import TimerModal from "./components/TimerModal"; // ✅ Ensure correct path
 
-export default function HomeScreen() {
-  const router = useRouter();
+const HomeScreen = () => {
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <View style={styles.container}>
+      <Button title="Open Timer" onPress={() => setModalVisible(true)} />
+
+      {/* Timer Modal */}
+      <TimerModal isVisible={modalVisible} onClose={() => setModalVisible(false)} />
+
       <Text style={styles.title}>Welcome to Boostelo!</Text>
       <Button title="Create a User" onPress={() => router.push("./CreateUser")} />
       <Button title="View All Users" onPress={() => router.push("./ListUsers")} />
-      <Button title="Write a Book Review" onPress={() => router.push("./CreateReview")} />
-      <Button title="Read Book Reviews" onPress={() => router.push("./ListReviews")} />
-      <Button title="Read Book Reviews by Author" onPress={() => router.push("./ReviewGrid")} />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 16 },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 30, textAlign: "center" },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginVertical: 20,
+  },
 });
+
+export default HomeScreen;
