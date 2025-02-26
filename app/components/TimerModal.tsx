@@ -78,7 +78,11 @@ const TimerModal = ({ isVisible, onClose }) => {
         .attr("stroke-width", 2)
         .attr("transform", `rotate(${i * angle})`);
 
-      const totalLength = petal.node().getTotalLength();
+        const petalNode = petal.node();
+        if (!petalNode) return; // Prevent error if petal isn't ready
+        
+        const totalLength = petalNode.getTotalLength();
+        
 
       petal
         .attr("stroke-dasharray", totalLength)
