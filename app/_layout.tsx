@@ -14,7 +14,6 @@ export default function Layout() {
         <Button title="Users" onPress={() => router.push("/ListUsers")} />
         <Button title="Write Review" onPress={() => router.push("/CreateReview")} />
         <Button title="Reviews" onPress={() => router.push("/ListReviews")} />
-        <Button title="By Author" onPress={() => router.push("/ReviewGrid")} />
       </View>
 
       {/* Page Content */}
