@@ -219,4 +219,53 @@ const TimerModal = ({ isVisible, onClose }) => {
   );
 };
 
-export default TimerModal;
+// export default TimerModal;
+// import React from "react";
+// import { Modal, View, Text, Button, TouchableOpacity } from "react-native";
+
+// interface TimerModalProps {
+//   isVisible: boolean;
+//   onClose: () => void;
+// }
+
+// const TimerModal: React.FC<TimerModalProps> = ({ isVisible, onClose }) => {
+//   return (
+//     <Modal visible={isVisible} animationType="slide" transparent={true}>
+//       <View
+//         style={{
+//           flex: 1,
+//           justifyContent: "center",
+//           alignItems: "center",
+//           backgroundColor: "rgba(0, 0, 0, 0.5)",
+//         }}
+//       >
+//         <View
+//           style={{
+//             width: "80%",
+//             backgroundColor: "white",
+//             padding: 20,
+//             borderRadius: 10,
+//             alignItems: "center",
+//           }}
+//         >
+//           <Text style={{ fontSize: 24, fontWeight: "bold" }}>Flower Timer</Text>
+
+//           {/* Close Button */}
+//           <TouchableOpacity
+//             onPress={onClose}
+//             style={{
+//               marginTop: 16,
+//               padding: 10,
+//               backgroundColor: "#ccc",
+//               borderRadius: 4,
+//             }}
+//           >
+//             <Text>Close</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+//     </Modal>
+//   );
+// };
+
+// export default TimerModal;
