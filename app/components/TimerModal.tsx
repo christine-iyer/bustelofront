@@ -219,7 +219,7 @@ const TimerModal = ({ isVisible, onClose }) => {
   );
 };
 
-// export default TimerModal;
+export default TimerModal;
 // import React from "react";
 // import { Modal, View, Text, Button, TouchableOpacity } from "react-native";
 
