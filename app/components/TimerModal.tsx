@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, Button, Modal, TouchableOpacity } from "react-native";
 import * as d3 from "d3";
