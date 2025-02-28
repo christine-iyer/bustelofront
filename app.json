@@ -7,7 +7,8 @@
     "icon": "./assets/images/favicon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": true, 
+    "platforms": ["ios", "android", "web"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.bookappfront"
