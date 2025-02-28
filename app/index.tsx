@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
-import TimerModal from "./components/TimerModal";         
+import TimerModal from "./components/TimerModal"; 
 import { useRouter } from "expo-router";
 const HomeScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
