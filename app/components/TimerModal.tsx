@@ -104,7 +104,10 @@ const TimerModal = ({ isVisible, onClose }) => {
       .style("opacity", progress)
       .style("filter", "drop-shadow(0px 0px 10px gold)");
   }, [time]);
-
+  useEffect(() => {
+    console.log("Timer component mounted in production");
+  }, []);
+  
   // 🎯 Timer Controls
   const startTimer = () => {
     const totalSeconds = selectedTime * 60;
