@@ -4788,7 +4788,7 @@ __metadata:
     d3: "npm:^7.9.0"
     eslint: "npm:^8.57.0"
     eslint-config-expo: "npm:~8.0.1"
-    expo: "npm:~52.0.37"
+    expo: "npm:^52.0.37"
     expo-blur: "npm:~14.0.2"
     expo-cli: "npm:^6.3.10"
     expo-constants: "npm:~17.0.4"
@@ -7945,7 +7945,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo@npm:~52.0.37":
+"expo@npm:^52.0.37":
   version: 52.0.37
   resolution: "expo@npm:52.0.37"
   dependencies:
