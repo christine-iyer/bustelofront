@@ -8,6 +8,12 @@
            "distDir": "web-build"
          }
        }
+     ],
+     "routes": [
+       {
+         "src": "/(.*)",
+         "dest": "/"
+       }
      ]
    }
    
