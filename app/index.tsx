@@ -8,7 +8,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Button title="Open Timer" onPress={() => setModalVisible(true)} />
+      
 
       {/* Timer Modal */}
       
