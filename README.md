@@ -1,414 +1,238 @@
-# Welcome to your Expo app 👋
+```js
+import { useState, useEffect } from "react";
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+// Simple shapes instead of flowers
+const shapes = {
+  square: "M0,0 C50,40 50,70 20,100 L0,85 L-20,100 C-50,70 -50,40 0,0 Z",
+  circle:
+    "M0,0 C50,40 50,70 20,100 L0,85 L-20,100 C-50,70 -50,40 0,0 Z M0, 0 C-22.594, 59.915 -51.127, 69.185 -88.93, 49.922 L-80.8435, 26.265 -101.29, 11.878 -82.027, -25.925 -53.494, -35.195 0, 0  M 0 0,C -16.93579063226 -61.75813503335 0.701832243669994 -86.02970771345 42.6110277997 -92.66365751762L 49.973264815135 -68.76945592695 74.9731247065 -69.14682701638 81.60707451067 -27.23763146035 63.96945163474 -2.96605878025 0 0Z",
+  triangle: "M0 0 C50 40 50 70 20 100 L0 85 L-20 100 C-50 70 -50 40 0 0 Z",
+  oval: "M 0 0 C 50 40 50 70 20 100 L 0 85 L -20 100 C -50 70 -50 40 0 0 M 0 0 C -22.594 59.915 -51.127 69.185 -88.93 49.922 L -80.8435 26.265 L -101.29 11.878 C -82.027 -25.925 -53.494 -35.195 0 0 M 0 0 C -63.9667025 -2.9754184 -81.6000965 -27.2487247 -74.9601842 -69.155425 L -49.961283 -68.77436785 L -42.5957758 -92.666617 C -0.689075500000001 -86.0267047 16.9443185 -61.7533984 0 0 M 0 0 C -16.93579063226 -61.75813503335 0.701832243669994 -86.02970771345 42.6110277997 -92.66365751762 L 49.973264815135 -68.76945592695 L 74.9731247065 -69.14682701638 C 81.60707451067 -27.23763146035 63.96945163474 -2.96605878025 0 0 M 0 0 C 53.5050029248508 -35.1908941956476 82.0397211695563 -25.9156670365015 101.299212255116 11.8942783673501 L 80.8483683599988 26.2798102842473 L 88.9322427095875 49.9405693602907 C 51.1222973057359 69.2000604458501 22.5875790610304 59.924833286704 0 0Z",
+};
 
-## Get started
+const TimerShape = () => {
+  const [time, setTime] = useState(0);
+  const [running, setRunning] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [selectedTime, setSelectedTime] = useState(1);
+  const [selectedShape, setSelectedShape] = useState("square");
+  const [progress, setProgress] = useState(0);
+  const [pathLength, setPathLength] = useState(200);
 
-1. Install dependencies
+  // Timer Countdown Effect
+  useEffect(() => {
+    let timer;
+    if (running && !paused) {
+      timer = setInterval(() => {
+        setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+      }, 1000);
+    }
 
-   ```bash
-   npm install
-   ```
+    if (time === 0) {
+      setRunning(false);
+    }
 
-2. Start the app
+    return () => clearInterval(timer);
+  }, [running, paused, time]);
 
-   ```bash
-    npx expo start
-   ```
+  // 2️⃣ Progress Update Effect
+  useEffect(() => {
+    if (running && !paused) {
+      setProgress(((selectedTime * 60 - time) / (selectedTime * 60)) * 100);
+    }
+  }, [time, running, paused, selectedTime]);
 
-In the output, you'll find options to open the app in a
+  // Get Path Length Dynamically
+  useEffect(() => {
+    const pathElement = document.querySelector("#shape-path");
+    if (pathElement) {
+      const length = pathElement.getTotalLength();
+      setPathLength(length);
+      pathElement.style.strokeDasharray = length;
+    }
+  }, [selectedShape]);
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+  const startTimer = () => {
+    setTime(selectedTime * 60);
+    setProgress(0);
+    setRunning(true);
+    setPaused(false);
+  };
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+  const pauseResumeTimer = () => {
+    setPaused((prevPaused) => !prevPaused);
+  };
 
+  const stopTimer = () => {
+    setRunning(false);
+    setPaused(false);
+    setTime(0);
+    setProgress(0);
+  };
 
+  const restartTimer = () => {
+    setTime(selectedTime * 60);
+    setProgress(0);
+    setRunning(true);
+    setPaused(false);
+  };
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
-## Learn more
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "16px",
+      }}
+    >
+      <h1
+        style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "16px" }}
+      >
+        Shape Timer
+      </h1>
 
-To learn more about developing your project with Expo, look at the following resources:
+      {/* Timer Display */}
+      <div
+        style={{
+          fontSize: "32px",
+          fontFamily: "monospace",
+          backgroundColor: "#1f2937",
+          color: "white",
+          padding: "16px",
+          borderRadius: "8px",
+        }}
+      >
+        {formatTime(time)}
+      </div>
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+      {/* Time Selection */}
+      <select
+        style={{
+          marginTop: "16px",
+          padding: "8px",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+        }}
+        onChange={(e) => setSelectedTime(Number(e.target.value))}
+        value={selectedTime}
+        disabled={running}
+      >
+        {[0.25, 0.5, 1, 5, 10, 15, 30, 45].map((min) => (
+          <option key={min} value={min}>
+            {min} min
+          </option>
+        ))}
+      </select>
 
-## Join the community
+      {/* Shape Selection */}
+      <select
+        style={{
+          marginTop: "16px",
+          padding: "8px",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+        }}
+        onChange={(e) => setSelectedShape(e.target.value)}
+        value={selectedShape}
+        disabled={running}
+      >
+        {Object.keys(shapes).map((shape) => (
+          <option key={shape} value={shape}>
+            {shape.charAt(0).toUpperCase() + shape.slice(1)}
+          </option>
+        ))}
+      </select>
 
-Join our community of developers creating universal apps.
+      {/* SVG Animation */}
+      <svg
+        width="200"
+        height="200"
+        viewBox="0 -100 35 300"
+        style={{ marginTop: "11px" }}
+        stroke="purple"
+        strokeWidth="4"
+        fill="none"
+      >
+        <path
+          id="shape-path"
+          d={shapes[selectedShape]}
+          strokeDasharray={pathLength}
+          strokeDashoffset={pathLength * (1 - progress / 100)}
+          strokeLinecap="round"
+        />
+      </svg>
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+      {/* Controls */}
+      <div style={{ marginTop: "16px", display: "flex", gap: "8px" }}>
+        {!running ? (
+          <button
+            onClick={startTimer}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#22c55e",
+              color: "white",
+              borderRadius: "4px",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            Start
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={pauseResumeTimer}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#eab308",
+                color: "white",
+                borderRadius: "4px",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              {paused ? "Resume" : "Pause"}
+            </button>
+            <button
+              onClick={stopTimer}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#ef4444",
+                color: "white",
+                borderRadius: "4px",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Stop
+            </button>
+          </>
+        )}
 
-If the user dropdown is empty, that means the API response is not returning an array of users or setUsers(res.data.users) is incorrect. Let's debug and fix it.
+        <button
+          onClick={restartTimer}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#3b82f6",
+            color: "white",
+            borderRadius: "4px",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Restart
+        </button>
+      </div>
+    </div>
+  );
+};
 
-1. Debug API Response in Console
-First, check what your API actually returns. Update the useEffect:
-
-tsx
-Copy
-Edit
-```
-useEffect(() => {
-  axios.get(`${API_BASE_URL}/api/user`)
-    .then(res => {
-      console.log("Users API Raw Response:", res.data); // Log full response
-      if (Array.isArray(res.data)) {
-        setUsers(res.data); // ✅ If API returns an array
-      } else if (Array.isArray(res.data.users)) {
-        setUsers(res.data.users); // ✅ If API wraps users inside an object
-      } else {
-        console.error("Unexpected API response format:", res.data);
-        setUsers([]); // Prevent .map() error
-      }
-    })
-    .catch(err => {
-      console.error("Error fetching users:", err);
-      setUsers([]); // Ensure it's an array even on error
-    });
-}, []);
-✅ Run the app and check Metro logs or DevTools console.
-```
-If it prints Users API Raw Response: [...], then setUsers(res.data); is correct.
-If it prints Users API Raw Response: { users: [...] }, use setUsers(res.data.users);
-If something unexpected appears, let me know the output!
-
-2. Ensure Backend Sends the Correct Format
-Check your userRoutes.js:
-
-✅ Correct API Response
-js
-Copy
-Edit
-```
-router.get("/", async (req, res) => {
-  try {
-    const users = await User.find({}, "_id username"); // Fetch only _id & username
-    res.json(users); // ✅ Send as array
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-```
-✅ Test in Postman or Browser:
-
-Open http://192.168.0.49:3001/api/user
-It should return something like:
-json
-Copy
-Edit
-[
-  { "_id": "65f1a1e0", "username": "JohnDoe" },
-  { "_id": "65f1a1e1", "username": "JaneSmith" }
-]
-
-**If it returns { users: [...] }, modify the frontend to use setUsers(res.data.users).**
-
-3. Make Sure users.map Always Works
-If users is empty due to API failure, guard against .map() errors:
-
-tsx
-Copy
-Edit
-```
-{Array.isArray(users) && users.length > 0 ? (
-  users.map((user) => (
-    <Picker.Item key={user._id} label={user.username} value={user._id} />
-  ))
-) : (
-  <Picker.Item label="No users found" value="" />
-)}
-```
-**Final Steps**
-Check the console.log output for Users API Raw Response: [...]
-
-Verify /api/user in Postman returns an array [...]
-
-Ensure users.map only runs on a valid array
-Restart Metro Bundler
-sh
-Copy
-Edit
-```
-npm start --reset-cache
-```
-// "use client"
-// import React, { useState, useEffect, useRef } from "react";
-// import { View, Text, Button, Modal, TouchableOpacity } from "react-native";
-// import * as d3 from "d3";
-
-// const TimerModal = ({ isVisible, onClose }) => {
-//   const [time, setTime] = useState(0);
-//   const [running, setRunning] = useState(false);
-//   const [paused, setPaused] = useState(false);
-//   const [selectedTime, setSelectedTime] = useState(1);
-//   const svgRef = useRef(null);
-//   const totalTimeRef = useRef(0); // Store total time in seconds
-
-//   // 🎵 Sound Play Function
-//   const playSound = () => {
-//     const audio = new Audio("https://www.fesliyanstudios.com/play-mp3/2440");
-//     audio.volume = 1;
-//     audio.play();
-
-//     // 🎵 Fade out after 10 sec
-//     setTimeout(() => {
-//       let fadeOut = setInterval(() => {
-//         if (audio.volume > 0.05) {
-//           audio.volume -= 0.05;
-//         } else {
-//           audio.volume = 0;
-//           audio.pause();
-//           clearInterval(fadeOut);
-//         }
-//       }, 200);
-//     }, 10000);
-//   };
-
-//   // ⏳ Timer Countdown Effect
-//   useEffect(() => {
-//     let timer;
-//     if (running && !paused) {
-//       timer = setInterval(() => {
-//         setTime((prevTime) => {
-//           if (prevTime > 0) return prevTime - 1;
-//           playSound();
-//           clearInterval(timer);
-//           return 0;
-//         });
-//       }, 1000);
-//     }
-//     return () => clearInterval(timer);
-//   }, [running, paused]);
-
-//   // 🌸 Flower Animation Effect (Persists even when modal closes)
-//   useEffect(() => {
-//     if (!running || time <= 0) return;
-
-//     const width = 200,
-//       height = 200;
-//     const numPetals = 6;
-//     const angle = 360 / numPetals;
-//     const petalPath =
-//       "M0,0 C39,57 -53,72 -41,50 L25,26 L17,12, C-6,-23,21,-38 0,0 M0,0 C50,30 50,80 20,100 L0,85 L20,100 C-50,80 -50,30 0,0";
-//     const svg = d3.select(svgRef.current);
-//     svg.selectAll("*").remove();
-
-//     const flowerGroup = svg
-//       .append("g")
-//       .attr("transform", `translate(${width / 2}, ${height / 2})`);
-
-//     const colorScale = d3
-//       .scaleSequential(d3.interpolateCool)
-//       .domain([numPetals, 0]);
-
-//     const progress = 1 - time / totalTimeRef.current;
-
-//     for (let i = 0; i < numPetals; i++) {
-//       const petal = flowerGroup
-//         .append("path")
-//         .attr("d", petalPath)
-//         .attr("fill", "none")
-//         .attr("stroke", colorScale(i))
-//         .attr("stroke-width", 2)
-//         .attr("transform", `rotate(${i * angle})`);
-
-//         const petalNode = petal.node();
-//         if (!petalNode) return; // Prevent error if petal isn't ready
-        
-//         const totalLength = petalNode.getTotalLength();
-        
-
-//       petal
-//         .attr("stroke-dasharray", totalLength)
-//         .attr("stroke-dashoffset", totalLength * (1 - progress))
-//         .transition()
-//         .duration(800)
-//         .ease(d3.easeLinear)
-//         .attr("stroke-dashoffset", 0)
-//         .attr("fill", colorScale(i))
-//         .attr("fill-opacity", progress);
-//     }
-
-//     flowerGroup
-//       .append("circle")
-//       .attr("cx", 0)
-//       .attr("cy", 0)
-//       .attr("r", 15 * progress)
-//       .attr("fill", "gold")
-//       .style("opacity", progress)
-//       .style("filter", "drop-shadow(0px 0px 10px gold)");
-//   }, [time]);
-//   useEffect(() => {
-//     console.log("Timer component mounted in production");
-//   }, []);
-  
-//   // 🎯 Timer Controls
-//   const startTimer = () => {
-//     const totalSeconds = selectedTime * 60;
-//     setTime(totalSeconds);
-//     totalTimeRef.current = totalSeconds;
-//     setRunning(true);
-//     setPaused(false);
-//   };
-
-//   const pauseResumeTimer = () => setPaused((prev) => !prev);
-//   const stopTimer = () => {
-//     setRunning(false);
-//     setPaused(false);
-//     setTime(0);
-//   };
-
-//   const formatTime = (seconds) => {
-//     const mins = Math.floor(seconds / 60);
-//     const secs = seconds % 60;
-//     return `${mins}:${secs.toString().padStart(2, "0")}`;
-//   };
-
-//   return (
-//     <Modal visible={isVisible} animationType="slide" transparent={true}>
-//       <View
-//         style={{
-//           flex: 1,
-//           justifyContent: "center",
-//           alignItems: "center",
-//           backgroundColor: "rgba(0, 0, 0, 0.5)",
-//         }}
-//       >
-//         <View
-//           style={{
-//             width: "80%",
-//             backgroundColor: "white",
-//             padding: 20,
-//             borderRadius: 10,
-//             alignItems: "center",
-//           }}
-//         >
-//           <Text style={{ fontSize: 24, fontWeight: "bold" }}>Flower Timer</Text>
-
-//           {/* Timer Display */}
-//           <Text
-//             style={{
-//               fontSize: 32,
-//               fontFamily: "monospace",
-//               backgroundColor: "#1f2937",
-//               color: "white",
-//               padding: 16,
-//               borderRadius: 8,
-//               marginTop: 10,
-//             }}
-//           >
-//             {formatTime(time)}
-//           </Text>
-
-//           {/* Time Selection */}
-//           <select
-//             onChange={(e) => setSelectedTime(Number(e.target.value))}
-//             value={selectedTime}
-//             disabled={running}
-//             style={{ marginTop: 16, padding: 8, borderRadius: 4 }}
-//           >
-//             {[0.25, 0.5, 1, 5, 10, 15, 30, 45].map((min) => (
-//               <option key={min} value={min}>
-//                 {min} min
-//               </option>
-//             ))}
-//           </select>
-
-//           {/* SVG Flower Animation */}
-//           <svg
-//             ref={svgRef}
-//             width="200"
-//             height="200"
-//             viewBox="0 0 200 200"
-//             style={{ marginTop: 16 }}
-//           ></svg>
-
-//           {/* Controls */}
-//           <View style={{ flexDirection: "row", marginTop: 16, gap: 8 }}>
-//             {!running ? (
-//               <Button title="Start" onPress={startTimer} />
-//             ) : (
-//               <>
-//                 <Button
-//                   title={paused ? "Resume" : "Pause"}
-//                   onPress={pauseResumeTimer}
-//                 />
-//                 <Button title="Stop" onPress={stopTimer} />
-//               </>
-//             )}
-//           </View>
-
-//           {/* Close Button */}
-//           <TouchableOpacity
-//             onPress={onClose}
-//             style={{
-//               marginTop: 16,
-//               padding: 10,
-//               backgroundColor: "#ccc",
-//               borderRadius: 4,
-//             }}
-//           >
-//             <Text>Close</Text>
-//           </TouchableOpacity>
-//         </View>
-//       </View>
-//     </Modal>
-//   );
-// };
-
-// export default TimerModal;
-// // import React from "react";
-// // import { Modal, View, Text, Button, TouchableOpacity } from "react-native";
-
-// // interface TimerModalProps {
-// //   isVisible: boolean;
-// //   onClose: () => void;
-// // }
-
-// // const TimerModal: React.FC<TimerModalProps> = ({ isVisible, onClose }) => {
-// //   return (
-// //     <Modal visible={isVisible} animationType="slide" transparent={true}>
-// //       <View
-// //         style={{
-// //           flex: 1,
-// //           justifyContent: "center",
-// //           alignItems: "center",
-// //           backgroundColor: "rgba(0, 0, 0, 0.5)",
-// //         }}
-// //       >
-// //         <View
-// //           style={{
-// //             width: "80%",
-// //             backgroundColor: "white",
-// //             padding: 20,
-// //             borderRadius: 10,
-// //             alignItems: "center",
-// //           }}
-// //         >
-// //           <Text style={{ fontSize: 24, fontWeight: "bold" }}>Flower Timer</Text>
-
-// //           {/* Close Button */}
-// //           <TouchableOpacity
-// //             onPress={onClose}
-// //             style={{
-// //               marginTop: 16,
-// //               padding: 10,
-// //               backgroundColor: "#ccc",
-// //               borderRadius: 4,
-// //             }}
-// //           >
-// //             <Text>Close</Text>
-// //           </TouchableOpacity>
-// //         </View>
-// //       </View>
-// //     </Modal>
-// //   );
-// // };
-
-// // export default TimerModal;
-
+export default TimerShape;
 ```
