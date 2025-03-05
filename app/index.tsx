@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
-
+import TimerShape from "./test";
 import { useRouter } from "expo-router";
 const HomeScreen = () => {
   
@@ -10,7 +10,7 @@ const HomeScreen = () => {
     <View style={styles.container}>
       
 
-      {/* Timer Modal */}
+      <TimerShape/>
       
 
       <Text style={styles.title}>Welcome to Boostelo!</Text>
