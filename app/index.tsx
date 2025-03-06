@@ -1,17 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
-import TimerShape from "./FancyTimer"; // ✅ Correct component name
+import TimerShape from "./FancyTimer";
 import { useRouter } from "expo-router";
 
 const HomeScreen = () => {
-  const [modalVisible, setModalVisible] = useState(false);
   const router = useRouter();
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Timer Modal</Text>
 
-      {/* ✅ Directly use TimerShape WITHOUT wrapping it in TimerProvider */}
+      {/* ✅ Just use TimerShape, don't wrap another TimerProvider */}
       <TimerShape />
 
       <Text style={styles.title}>Welcome to Boostelo!</Text>

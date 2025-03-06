@@ -1,20 +1,8 @@
-import React, { createContext, useState } from "react";
-import { Animated } from "react-native"; // ✅ Import Animated
+import React, { createContext, useState, useEffect } from "react";
+import { Animated } from "react-native";
 
-export const TimerContext = createContext({
-  time: 0,
-  running: false,
-  paused: false,
-  selectedTime: 1,
-  showTimer: false,
-  setShowTimer: () => {},
-  setSelectedTime: () => {},
-  startTimer: () => {},
-  pauseResumeTimer: () => {},
-  stopTimer: () => {},
-  restartTimer: () => {},
-  progress: new Animated.Value(0), // ✅ Ensure this is an Animated value
-});
+// ✅ Create Context
+export const TimerContext = createContext(null);
 
 export const TimerProvider = ({ children }) => {
   const [time, setTime] = useState(0);
@@ -22,30 +10,33 @@ export const TimerProvider = ({ children }) => {
   const [paused, setPaused] = useState(false);
   const [selectedTime, setSelectedTime] = useState(1);
   const [showTimer, setShowTimer] = useState(false);
-  const progress = new Animated.Value(0); // ✅ Fix: Use Animated.Value
+  const progress = new Animated.Value(0);
+
+  useEffect(() => {
+    let timer;
+    if (running && !paused) {
+      timer = setInterval(() => {
+        setTime((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    }
+
+    if (time === 0) {
+      setRunning(false);
+      progress.setValue(0);
+    }
+
+    return () => clearInterval(timer);
+  }, [running, paused, time]);
 
   const startTimer = () => {
+    setTime(selectedTime * 60);
     setRunning(true);
+    setPaused(false);
     Animated.timing(progress, {
       toValue: 100,
-      duration: selectedTime * 60000, // Converts minutes to milliseconds
+      duration: selectedTime * 60000,
       useNativeDriver: false,
     }).start();
-  };
-
-  const pauseResumeTimer = () => setPaused((prev) => !prev);
-  const stopTimer = () => {
-    setRunning(false);
-    setPaused(false);
-    setTime(0);
-    progress.setValue(0); // ✅ Reset progress animation
-  };
-
-  const restartTimer = () => {
-    setTime(selectedTime * 60);
-    progress.setValue(0);
-    setRunning(true);
-    setPaused(false);
   };
 
   return (
@@ -59,10 +50,7 @@ export const TimerProvider = ({ children }) => {
         setShowTimer,
         setSelectedTime,
         startTimer,
-        pauseResumeTimer,
-        stopTimer,
-        restartTimer,
-        progress, // ✅ Pass Animated progress
+        progress,
       }}
     >
       {children}
