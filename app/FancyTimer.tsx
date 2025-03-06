@@ -17,7 +17,7 @@ const TimerShape = () => {
     pauseResumeTimer,
     stopTimer,
     restartTimer,
-    progress,
+    progress, // ✅ Animated.Value
   } = useContext(TimerContext);
 
   const formatTime = (seconds) => {
@@ -28,19 +28,16 @@ const TimerShape = () => {
 
   return (
     <View style={styles.container}>
-      {/* Show/Hide Timer Button */}
       {!showTimer && (
         <TouchableOpacity style={styles.showButton} onPress={() => setShowTimer(true)}>
           <Text style={styles.buttonText}>Show Timer</Text>
         </TouchableOpacity>
       )}
 
-      {/* Floating Timer */}
       {showTimer && (
         <View style={styles.timerBox}>
           <Text style={styles.timer}>{formatTime(time)}</Text>
 
-          {/* Time Selection Slider */}
           {!running && (
             <Slider
               style={styles.slider}
@@ -65,7 +62,7 @@ const TimerShape = () => {
                 strokeDashoffset={progress.interpolate({
                   inputRange: [0, 100],
                   outputRange: [100, 0],
-                })}
+                })} // ✅ Use progress.interpolate
                 strokeLinecap="round"
               />
             </Svg>
@@ -92,5 +89,79 @@ const TimerShape = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#f4f4f4",
+  },
+  showButton: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 12,
+    color: "#333",
+    textAlign: "center",
+  },
+  timerBox: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  text: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: "#333",
+  },
+  timer: {},
+  slider: {},
+  svgContainer: {},
+  buttonContainer: {},
+  boldText: {
+    fontWeight: "bold",
+    color: "#000",
+  },
+  input: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    marginBottom: 8,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+  },
+  button: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 4,
+    marginVertical: 4,
+    alignItems: "center",
+    alignSelf: "flex-start",
+  },
+  showButton: {
+    backgroundColor: "green",
+  },
+  startButton: {
+    backgroundColor: "gray",
+  },
+  pauseButton: {
+    backgroundColor: "blue",
+  },
+  stopButton: {
+    backgroundColor: "red",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  emptyText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#888",
+    marginTop: 20,
+  },
+});
 
 export default TimerShape;

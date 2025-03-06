@@ -1,8 +1,20 @@
-import React, { createContext, useState, useEffect } from "react";
-import { Audio } from "expo-av";
-import { Animated } from "react-native";
+import React, { createContext, useState } from "react";
+import { Animated } from "react-native"; // ✅ Import Animated
 
-export const TimerContext = createContext();
+export const TimerContext = createContext({
+  time: 0,
+  running: false,
+  paused: false,
+  selectedTime: 1,
+  showTimer: false,
+  setShowTimer: () => {},
+  setSelectedTime: () => {},
+  startTimer: () => {},
+  pauseResumeTimer: () => {},
+  stopTimer: () => {},
+  restartTimer: () => {},
+  progress: new Animated.Value(0), // ✅ Ensure this is an Animated value
+});
 
 export const TimerProvider = ({ children }) => {
   const [time, setTime] = useState(0);
@@ -10,75 +22,30 @@ export const TimerProvider = ({ children }) => {
   const [paused, setPaused] = useState(false);
   const [selectedTime, setSelectedTime] = useState(1);
   const [showTimer, setShowTimer] = useState(false);
-  const [sound, setSound] = useState(null);
-  const [progress, setProgress] = useState(new Animated.Value(0));
-
-  useEffect(() => {
-    let timer;
-    if (running && !paused) {
-      timer = setInterval(() => {
-        setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
-        setProgress(
-          new Animated.Value(((selectedTime * 60 - time) / (selectedTime * 60)) * 100)
-        );
-      }, 1000);
-    }
-    if (time === 0) setRunning(false);
-    return () => clearInterval(timer);
-  }, [running, paused, time]);
-
-  useEffect(() => {
-    if (time === 0 && running) {
-      playSound();
-      setRunning(false);
-    }
-  }, [time, running]);
-
-  const playSound = async () => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: "https://www.fesliyanstudios.com/play-mp3/24" },
-        { shouldPlay: true }
-      );
-      setSound(sound);
-      await sound.playAsync();
-    } catch (error) {
-      console.error("Error playing sound:", error);
-    }
-  };
-
-  useEffect(() => {
-    return sound ? () => sound.unloadAsync() : undefined;
-  }, [sound]);
+  const progress = new Animated.Value(0); // ✅ Fix: Use Animated.Value
 
   const startTimer = () => {
-    setTime(selectedTime * 60);
     setRunning(true);
-    setPaused(false);
     Animated.timing(progress, {
       toValue: 100,
-      duration: selectedTime * 60 * 1000,
+      duration: selectedTime * 60000, // Converts minutes to milliseconds
       useNativeDriver: false,
     }).start();
   };
 
-  const pauseResumeTimer = () => setPaused((prevPaused) => !prevPaused);
+  const pauseResumeTimer = () => setPaused((prev) => !prev);
   const stopTimer = () => {
     setRunning(false);
     setPaused(false);
     setTime(0);
-    setProgress(new Animated.Value(0));
+    progress.setValue(0); // ✅ Reset progress animation
   };
 
   const restartTimer = () => {
     setTime(selectedTime * 60);
+    progress.setValue(0);
     setRunning(true);
     setPaused(false);
-    Animated.timing(progress, {
-      toValue: 100,
-      duration: selectedTime * 60 * 1000,
-      useNativeDriver: false,
-    }).start();
   };
 
   return (
@@ -95,7 +62,7 @@ export const TimerProvider = ({ children }) => {
         pauseResumeTimer,
         stopTimer,
         restartTimer,
-        progress,
+        progress, // ✅ Pass Animated progress
       }}
     >
       {children}
