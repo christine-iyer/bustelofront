@@ -1,13 +1,17 @@
 import React from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import { Stack, useRouter } from "expo-router";
-
+import { TimerProvider } from "./TimerContext"; // Import the TimerProvider
+import { Slot } from "expo-router"; 
 export default function Layout() {
   const router = useRouter();
 
   return (
     <View style={{ flex: 1 }}>
       {/* Navigation Bar */}
+      <TimerProvider>
+      <Slot /> {/* This ensures the timer is accessible in all pages */}
+    </TimerProvider>
       <View style={styles.navbar}>
         <Button title="Home" onPress={() => router.push("/")} />
         <Button title="Create User" onPress={() => router.push("/CreateUser")} />

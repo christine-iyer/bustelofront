@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, Button, StyleSheet, Alert, Modal, Pressable } from "react-native";
-import TimerShape from "./test";
+import { View, Text, Button, StyleSheet } from "react-native";
+import TimerShape from "./FancyTimer";
 import { useRouter } from "expo-router";
 
 const HomeScreen = () => {
@@ -9,36 +9,15 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* ✅ Button to open modal */}
-      <Button title="Open Timer" onPress={() => setModalVisible(true)} />
 
-      {/* ✅ Modal Component */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalVisible(false);
-        }}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+ 
             <Text style={styles.title}>Timer Modal</Text>
 
             {/* Timer Component */}
             <TimerShape />
 
-            {/* Close Modal Button */}
-            <Pressable
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.textStyle}>Close Modal</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+
+     
 
       {/* Main Content */}
       <Text style={styles.title}>Welcome to Boostelo!</Text>
