@@ -128,12 +128,17 @@ const TimerShape: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  form: {
+  container: {
     marginBottom: 16,
     paddingHorizontal: 10,
     borderStyle: "solid",
   },
-  input: {
+  buttonContainer: {
+    marginBottom: 16,
+    paddingHorizontal: 10,
+    borderStyle: "solid",
+  },
+  timer: {
     height: 44,
     borderColor: "#ccc",
     borderWidth: 1,
@@ -142,7 +147,23 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: "#fff",
   },
-  button: {
+  startButton: {
+    backgroundColor: "#EB5B00",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 6,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stopButton: {
+    backgroundColor: "#EB5B00",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 6,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pauseButton: {
     backgroundColor: "#EB5B00",
     paddingVertical: 12,
     paddingHorizontal: 20,
@@ -155,6 +176,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  circleContainer: {
+    marginBottom: 16,
+    paddingHorizontal: 10,
+    borderStyle: "solid",
+  },
+
 });
 
 export default TimerShape;
