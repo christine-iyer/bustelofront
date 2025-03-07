@@ -8,60 +8,60 @@ import {
   PanResponder,
   Vibration,
 } from "react-native";
-import Svg, { Path, Circle } from "react-native-svg";
+import Svg, { Path, Circle, Text as SvgText } from "react-native-svg";
 import { TimerContext } from "./TimerContext";
-
-// ✅ Wrap Path in Animated Component
-const AnimatedPath = Animated.createAnimatedComponent(Path);
+import * as Haptics from "expo-haptics";
 
 const TimerShape: React.FC = () => {
-  const timerContext = useContext(TimerContext);
-  if (!timerContext) return null;
+  const context = useContext(TimerContext);
+
+  if (!context) {
+    throw new Error("TimerShape must be used within a TimerProvider");
+  }
 
   const {
     time,
     running,
     selectedTime,
+    setSelectedTime,
     startTimer,
     pauseResumeTimer,
     stopTimer,
     progress,
-    setSelectedTime,
-  } = timerContext;
+  } = context;
 
-  const rotation = progress.interpolate({
-    inputRange: [0, 100],
-    outputRange: ["0deg", "360deg"],
-  });
+  const radius = 80;
+  const strokeWidth = 6;
+  const circumference = 2 * Math.PI * radius;
+  const maxTime = 60; // Maximum time: 60 minutes
 
-  // ✅ Fix: Convert Animated Interpolation to Animated.Value
-  const animatedStroke = progress.interpolate({
-    inputRange: [0, 100],
-    outputRange: ["green", "red"],
-  });
+  const strokeDashoffset = progress.interpolate({
+    inputRange: [0, maxTime * 60], // Convert minutes to seconds
+    outputRange: [circumference, 0],
+  }) as unknown as number;
 
-  const animatedDashOffset = progress.interpolate({
-    inputRange: [0, 100],
-    outputRange: [500, 0],
-  });
-
-  // ✅ Draggable Gesture Handler
-  const pan = useRef(new Animated.ValueXY()).current;
+  // ✅ Draggable Dial Logic
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gesture) => {
-        let angle = Math.atan2(gesture.dy, gesture.dx) * (180 / Math.PI);
-        if (angle < 0) angle += 360;
-
-        const newTime = Math.round((angle / 360) * 60);
-        if (!running) {
-          setSelectedTime(newTime);
-          Vibration.vibrate(50);
-        }
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gestureState) => {
+        const angle =
+          (Math.atan2(gestureState.dy, gestureState.dx) * (180 / Math.PI) + 90 + 360) % 360;
+        let newTime = Math.round((angle / 360) * maxTime);
+        if (newTime < 1) newTime = 1;
+        if (newTime > maxTime) newTime = maxTime;
+        setSelectedTime(newTime);
       },
     })
   ).current;
+
+  // Number markers for minutes
+  const minuteMarks = Array.from({ length: 12 }, (_, i) => (i + 1) * 5);
+
+  const handleAngle = ((selectedTime / maxTime) * 360 - 90) * (Math.PI / 180);
+  const handleX = Math.cos(handleAngle) * (radius + 15);
+  const handleY = Math.sin(handleAngle) * (radius + 15);
 
   return (
     <View style={styles.container}>
@@ -69,39 +69,58 @@ const TimerShape: React.FC = () => {
         {Math.floor(time / 60)}:{(time % 60).toString().padStart(2, "0")} min
       </Text>
 
-      {/* Circular Timer */}
+      {/* Circular Timer with Draggable Dial */}
       <View style={styles.circleContainer} {...panResponder.panHandlers}>
-        <Animated.View style={{ transform: [{ rotate: rotation }] }}>
-          <Svg width={200} height={200} viewBox="-100 -100 200 200">
-            <Circle cx="0" cy="0" r="80" stroke="gray" strokeWidth="4" fill="none" />
+        <Svg width={220} height={220} viewBox="-110 -110 220 220">
+          <Circle cx="0" cy="0" r={radius} stroke="gray" strokeWidth="4" fill="none" />
 
-            {/* ✅ Fix: Use AnimatedPath for stroke animation */}
-            <AnimatedPath
-              d="M 0 -80 A 80 80 0 1 1 0 80 A 80 80 0 1 1 0 -80"
-              stroke={animatedStroke}
-              strokeWidth="6"
-              fill="none"
-              strokeDasharray={500}
-              strokeDashoffset={animatedDashOffset}
-              strokeLinecap="round"
-            />
-          </Svg>
-        </Animated.View>
+          <Path
+            d="M 0 -80 A 80 80 0 1 1 0 80 A 80 80 0 1 1 0 -80"
+            stroke="purple"
+            strokeWidth={strokeWidth}
+            fill="none"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+          />
 
-        {/* Start/Stop Button Inside Circle */}
-        <TouchableOpacity
-          style={styles.circleButton}
-          onPress={running ? stopTimer : startTimer}
-        >
-          <Text style={styles.buttonText}>{running ? "Stop" : "Start"}</Text>
-        </TouchableOpacity>
+          {minuteMarks.map((min) => {
+            const angle = (min / maxTime) * 360 - 90;
+            const x = Math.cos((angle * Math.PI) / 180) * (radius + 20);
+            const y = Math.sin((angle * Math.PI) / 180) * (radius + 20);
+            return (
+              <SvgText
+                key={min}
+                x={x}
+                y={y}
+                fill="black"
+                fontSize="14"
+                textAnchor="middle"
+                alignmentBaseline="middle"
+              >
+                {min}
+              </SvgText>
+            );
+          })}
+
+          <Circle cx={handleX} cy={handleY} r="10" fill="red" {...panResponder.panHandlers} />
+        </Svg>
       </View>
 
       <View style={styles.buttonContainer}>
-        {running && (
-          <TouchableOpacity style={styles.pauseButton} onPress={pauseResumeTimer}>
-            <Text style={styles.buttonText}>Pause</Text>
+        {!running ? (
+          <TouchableOpacity style={styles.startButton} onPress={startTimer}>
+            <Text style={styles.buttonText}>Start</Text>
           </TouchableOpacity>
+        ) : (
+          <>
+            <TouchableOpacity style={styles.pauseButton} onPress={pauseResumeTimer}>
+              <Text style={styles.buttonText}>Pause</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.stopButton} onPress={stopTimer}>
+              <Text style={styles.buttonText}>Stop</Text>
+            </TouchableOpacity>
+          </>
         )}
       </View>
     </View>
@@ -109,23 +128,33 @@ const TimerShape: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { alignItems: "center", justifyContent: "center", padding: 20 },
-  timer: { fontSize: 30, marginBottom: 20 },
-  circleContainer: { alignItems: "center", justifyContent: "center" },
-  circleButton: {
-    position: "absolute",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "purple",
+  form: {
+    marginBottom: 16,
+    paddingHorizontal: 10,
+    borderStyle: "solid",
+  },
+  input: {
+    height: 44,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    backgroundColor: "#fff",
+  },
+  button: {
+    backgroundColor: "#EB5B00",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 6,
     alignItems: "center",
     justifyContent: "center",
-    top: "35%",
-    left: "35%",
   },
-  buttonContainer: { flexDirection: "row", marginTop: 10 },
-  pauseButton: { backgroundColor: "blue", padding: 10, margin: 5 },
-  buttonText: { color: "white", fontWeight: "bold" },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });
 
 export default TimerShape;
