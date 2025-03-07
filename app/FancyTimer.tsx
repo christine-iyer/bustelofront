@@ -1,130 +1,131 @@
-import React, { useContext } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from "react-native";
+import React, { useContext, useRef } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  PanResponder,
+  Vibration,
+} from "react-native";
+import Svg, { Path, Circle } from "react-native-svg";
 import { TimerContext } from "./TimerContext";
-import Svg, { Path } from "react-native-svg";
-import Slider from "@react-native-community/slider";
 
-const TimerShape = () => {
+// ✅ Wrap Path in Animated Component
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+
+const TimerShape: React.FC = () => {
+  const timerContext = useContext(TimerContext);
+  if (!timerContext) return null;
+
   const {
     time,
     running,
-    paused,
     selectedTime,
-    showTimer,
-    setShowTimer,
-    setSelectedTime,
     startTimer,
     pauseResumeTimer,
     stopTimer,
-    restartTimer,
     progress,
-  } = useContext(TimerContext);
+    setSelectedTime,
+  } = timerContext;
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
+  const rotation = progress.interpolate({
+    inputRange: [0, 100],
+    outputRange: ["0deg", "360deg"],
+  });
+
+  // ✅ Fix: Convert Animated Interpolation to Animated.Value
+  const animatedStroke = progress.interpolate({
+    inputRange: [0, 100],
+    outputRange: ["green", "red"],
+  });
+
+  const animatedDashOffset = progress.interpolate({
+    inputRange: [0, 100],
+    outputRange: [500, 0],
+  });
+
+  // ✅ Draggable Gesture Handler
+  const pan = useRef(new Animated.ValueXY()).current;
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gesture) => {
+        let angle = Math.atan2(gesture.dy, gesture.dx) * (180 / Math.PI);
+        if (angle < 0) angle += 360;
+
+        const newTime = Math.round((angle / 360) * 60);
+        if (!running) {
+          setSelectedTime(newTime);
+          Vibration.vibrate(50);
+        }
+      },
+    })
+  ).current;
 
   return (
     <View style={styles.container}>
-      {!showTimer && (
-        <TouchableOpacity style={styles.showButton} onPress={() => setShowTimer(true)}>
-          <Text style={styles.buttonText}>Show Timer</Text>
-        </TouchableOpacity>
-      )}
+      <Text style={styles.timer}>
+        {Math.floor(time / 60)}:{(time % 60).toString().padStart(2, "0")} min
+      </Text>
 
-      {showTimer && (
-        <View style={styles.timerBox}>
-          <Text style={styles.timer}>{formatTime(time)}</Text>
+      {/* Circular Timer */}
+      <View style={styles.circleContainer} {...panResponder.panHandlers}>
+        <Animated.View style={{ transform: [{ rotate: rotation }] }}>
+          <Svg width={200} height={200} viewBox="-100 -100 200 200">
+            <Circle cx="0" cy="0" r="80" stroke="gray" strokeWidth="4" fill="none" />
 
-          {!running && (
-            <Slider
-              style={styles.slider}
-              minimumValue={0.25}
-              maximumValue={45}
-              step={0.25}
-              value={selectedTime}
-              onValueChange={setSelectedTime}
-              minimumTrackTintColor="purple"
-              maximumTrackTintColor="gray"
+            {/* ✅ Fix: Use AnimatedPath for stroke animation */}
+            <AnimatedPath
+              d="M 0 -80 A 80 80 0 1 1 0 80 A 80 80 0 1 1 0 -80"
+              stroke={animatedStroke}
+              strokeWidth="6"
+              fill="none"
+              strokeDasharray={500}
+              strokeDashoffset={animatedDashOffset}
+              strokeLinecap="round"
             />
-          )}
+          </Svg>
+        </Animated.View>
 
-          <View style={styles.svgContainer}>
-            <Svg width={60} height={60} viewBox="-100 -100 200 200">
-              <Path
-                d="M 0 0 C 50 40 50 70 20 100 L 0 85 L -20 100 C -50 70 -50 40 0 0 M 0 0 C -22.594 59.915 -51.127 69.185 -88.93 49.922 L -80.8435 26.265 L -101.29 11.878 C -82.027 -25.925 -53.494 -35.195 0 0"
-                stroke="purple"
-                strokeWidth="3"
-                fill="none"
-                strokeDasharray={100}
-                strokeDashoffset={progress.interpolate({
-                  inputRange: [0, 100],
-                  outputRange: [100, 0],
-                })}
-                strokeLinecap="round"
-              />
-            </Svg>
-          </View>
+        {/* Start/Stop Button Inside Circle */}
+        <TouchableOpacity
+          style={styles.circleButton}
+          onPress={running ? stopTimer : startTimer}
+        >
+          <Text style={styles.buttonText}>{running ? "Stop" : "Start"}</Text>
+        </TouchableOpacity>
+      </View>
 
-          <View style={styles.buttonContainer}>
-            {!running ? (
-              <TouchableOpacity style={styles.startButton} onPress={startTimer}>
-                <Text style={styles.buttonText}>Start</Text>
-              </TouchableOpacity>
-            ) : (
-              <>
-                <TouchableOpacity style={styles.pauseButton} onPress={pauseResumeTimer}>
-                  <Text style={styles.buttonText}>{paused ? "Resume" : "Pause"}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.stopButton} onPress={stopTimer}>
-                  <Text style={styles.buttonText}>Stop</Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
-        </View>
-      )}
+      <View style={styles.buttonContainer}>
+        {running && (
+          <TouchableOpacity style={styles.pauseButton} onPress={pauseResumeTimer}>
+            <Text style={styles.buttonText}>Pause</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-    paddingHorizontal: 10,
-    borderStyle: "solid",
-  },
-  input: {
-    height: 44,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    borderRadius: 6,
-    backgroundColor: "#fff",
-  },
-  showButton: {
-    backgroundColor: "#EB5B00",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 6,
+  container: { alignItems: "center", justifyContent: "center", padding: 20 },
+  timer: { fontSize: 30, marginBottom: 20 },
+  circleContainer: { alignItems: "center", justifyContent: "center" },
+  circleButton: {
+    position: "absolute",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "purple",
     alignItems: "center",
     justifyContent: "center",
+    top: "35%",
+    left: "35%",
   },
-  stopButton: {
-    backgroundColor: "#EB5B00",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 6,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
+  buttonContainer: { flexDirection: "row", marginTop: 10 },
+  pauseButton: { backgroundColor: "blue", padding: 10, margin: 5 },
+  buttonText: { color: "white", fontWeight: "bold" },
 });
 
 export default TimerShape;

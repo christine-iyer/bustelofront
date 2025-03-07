@@ -14,9 +14,7 @@ const HomeScreen = () => {
       <TimerShape />
 
       <Text style={styles.title}>Welcome to Boostelo!</Text>
-      <Button title="Create a User" onPress={() => router.push("./CreateUser")} />
-      <Button title="View All Users" onPress={() => router.push("./ListUsers")} />
-    </View>
+        </View>
   );
 };
 
@@ -26,6 +24,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  title:{ alignContent: "flex-end"}
 });
 
 export default HomeScreen;

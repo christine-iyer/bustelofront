@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Button, StyleSheet } from "react-native";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useRouter, Slot } from "expo-router";
 import { TimerProvider } from "./TimerContext"; // ✅ Ensure correct import
 
 export default function Layout() {
@@ -8,13 +8,14 @@ export default function Layout() {
 
   return (
     <TimerProvider> {/* ✅ Wrap everything inside TimerProvider */}
-      <Stack>
-        <Stack.Screen name="index" options={{ title: "Home" }} />
-        <Stack.Screen name="CreateUser" options={{ title: "Create User" }} />
-        <Stack.Screen name="ListUsers" options={{ title: "Users" }} />
-        <Stack.Screen name="CreateReview" options={{ title: "Write Review" }} />
-        <Stack.Screen name="ListReviews" options={{ title: "Reviews" }} />
-      </Stack>
+      <View style={{ flex: 1 }}>
+        <View style={styles.navbar}>
+          <Button title="Home" onPress={() => router.push("/")} />
+          <Button title="Create User" onPress={() => router.push("/CreateUser")} />
+          <Button title="Users" onPress={() => router.push("/ListUsers")} />
+        </View>
+        <Slot /> {/* ✅ Ensures Timer is available in all screens */}
+      </View>
     </TimerProvider>
   );
 }

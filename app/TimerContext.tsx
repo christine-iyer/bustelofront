@@ -1,10 +1,29 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, ReactNode } from "react";
 import { Animated } from "react-native";
 
-// ✅ Create Context
-export const TimerContext = createContext(null);
+// ✅ Define TimerContext Type
+interface TimerContextProps {
+  time: number;
+  running: boolean;
+  paused: boolean;
+  selectedTime: number;
+  showTimer: boolean;
+  setShowTimer: (show: boolean) => void;
+  setSelectedTime: (time: number) => void;
+  startTimer: () => void;
+  pauseResumeTimer: () => void;
+  stopTimer: () => void;
+  progress: Animated.Value;
+}
 
-export const TimerProvider = ({ children }) => {
+// ✅ Create Context with Default Values
+export const TimerContext = createContext<TimerContextProps | null>(null);
+
+interface TimerProviderProps {
+  children: ReactNode;
+}
+
+export const TimerProvider: React.FC<TimerProviderProps> = ({ children }) => {
   const [time, setTime] = useState(0);
   const [running, setRunning] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -13,7 +32,8 @@ export const TimerProvider = ({ children }) => {
   const progress = new Animated.Value(0);
 
   useEffect(() => {
-    let timer;
+    let timer: NodeJS.Timeout;
+
     if (running && !paused) {
       timer = setInterval(() => {
         setTime((prev) => (prev > 0 ? prev - 1 : 0));
@@ -50,6 +70,13 @@ export const TimerProvider = ({ children }) => {
         setShowTimer,
         setSelectedTime,
         startTimer,
+        pauseResumeTimer: () => setPaused((prev) => !prev),
+        stopTimer: () => {
+          setRunning(false);
+          setPaused(false);
+          setTime(0);
+          progress.setValue(0);
+        },
         progress,
       }}
     >
