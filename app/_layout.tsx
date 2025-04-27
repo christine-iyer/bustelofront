@@ -1,14 +1,12 @@
 import React from "react";
 import { View, Button, StyleSheet } from "react-native";
 import { Stack, useRouter, Slot } from "expo-router";
-import { TimerProvider } from "./TimerContext";
-import TimerShape from "./FancyTimer"; // ✅ Import the timer component
 
 export default function Layout() {
   const router = useRouter();
 
   return (
-    <TimerProvider> {/* ✅ Wrap everything inside TimerProvider */}
+
       <View style={{ flex: 1 }}>
         {/* ✅ Navigation Bar */}
         <View style={styles.navbar}>
@@ -18,16 +16,11 @@ export default function Layout() {
           <Button title="Create Review" onPress={() => router.push("/CreateReview")} />
           <Button title="List Reviews" onPress={() => router.push("/ListReviews")} />
         </View>
-
-        {/* ✅ The Timer is placed inside the global layout so it appears on all pages */}
-        <TimerShape />
-
-        {/* ✅ Ensures pages are rendered dynamically */}
         <Stack screenOptions={{ headerShown: false }}>
           <Slot />
         </Stack>
       </View>
-    </TimerProvider>
+
   );
 }
 

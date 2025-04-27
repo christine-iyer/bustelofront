@@ -7,12 +7,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Timer Modal</Text>
-
-      {/* ✅ Just use TimerShape, don't wrap another TimerProvider */}
-
-
-      <Text style={styles.title}>Welcome to Boostelo!</Text>
+      <Text style={styles.title}>Welcome to Boostelo! We are a Virtue Builder</Text>
         </View>
   );
 };
