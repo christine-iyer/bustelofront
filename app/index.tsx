@@ -8,17 +8,20 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Boostelo! We are a Virtue Builder</Text>
-        </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-       npm install expo-router flex: 1,
+    flex: 1,
+    backgroundColor:"green",
     justifyContent: "center",
     alignItems: "center",
   },
-  title:{ textAlign : "center"}
+  title: { textAlign: "center", 
+    backgroundColor: "#EB5B00"
+  }
 });
 
 export default HomeScreen;
