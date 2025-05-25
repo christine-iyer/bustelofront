@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
@@ -49,33 +48,49 @@ const ListReviews: React.FC = () => {
     review.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const renderItem = ({ item }: { item: Review }) => (
-    
-    <View style={styles.reviewContainer}>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.author}>
-        By {item.author} ({item.userId ? item.userId.username : "Unknown"})
-      </Text>
-      <Text style={styles.text}>{item.text}</Text>
-      <Text style={styles.genre}>Genre: {item.genre}</Text>
-      <Text style={styles.rating}>Rating: {item.rating}/5</Text>
-      {item.images && item.images.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.imagesContainer}
-        >
-          {item.images.map((imageUri, index) => (
-            <Image
-              key={index}
-              source={{ uri: imageUri }}
-              style={styles.reviewImage}
-            />
-          ))}
-        </ScrollView>
-      )}
-    </View>
-  );
+  const renderItem = ({ item }: { item: Review }) => {
+    const randomImage =
+      item.images && item.images.length > 0
+        ? item.images[Math.floor(Math.random() * item.images.length)]
+        : null;
+
+    return (
+      <View style={styles.reviewContainer}>
+        <View style={styles.spine} />
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.author}>
+          By {item.author} ({item.userId ? item.userId.username : "Unknown"})
+        </Text>
+        <Text style={styles.text}>{item.text}</Text>
+        <Text style={styles.genre}>Genre: {item.genre}</Text>
+        <Text style={styles.rating}>Rating: {item.rating}/5</Text>
+        {randomImage && (
+          <Image source={{ uri: randomImage }} style={styles.reviewImage} />
+        )}
+      </View>
+    );
+  };
+
+  const renderGridItem = ({ item }: { item: Review }) => {
+    const randomImage =
+      item.images && item.images.length > 0
+        ? item.images[Math.floor(Math.random() * item.images.length)]
+        : null;
+
+    return (
+      <View style={styles.gridItem}>
+        {randomImage && (
+          <Image source={{ uri: randomImage }} style={styles.reviewImage} />
+        )}
+        <Text style={styles.gridTitle}>{item.title}</Text>
+        <Text style={styles.gridAuthor}>By {item.author}</Text>
+        <Text style={styles.gridText} numberOfLines={3}>
+          {item.text}
+        </Text>
+      </View>
+    );
+  };
+
   if (!reviews) {
     return (
       <View style={styles.container}>
@@ -83,7 +98,6 @@ const ListReviews: React.FC = () => {
       </View>
     );
   }
-
 
   return (
     <View style={styles.container}>
@@ -106,6 +120,16 @@ const ListReviews: React.FC = () => {
           [{ nativeEvent: { contentOffset: { x: scrollX } } }],
           { useNativeDriver: false }
         )}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No reviews found.</Text>
+        }
+      />
+      <FlatList
+        data={filteredReviews}
+        renderItem={renderGridItem}
+        keyExtractor={(item) => item._id}
+        numColumns={3}
+        contentContainerStyle={styles.gridContainer}
         ListEmptyComponent={
           <Text style={styles.emptyText}>No reviews found.</Text>
         }
@@ -135,35 +159,51 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     marginHorizontal: 10,
-    shadowColor: "#df6d2d",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: "#d39d55",
+    position: "relative",
+  },
+  spine: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 10,
+    height: "100%",
+    backgroundColor: "#d39d55",
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5,
+    color: "#3e2723",
   },
   author: {
     fontSize: 16,
     fontStyle: "italic",
     marginBottom: 10,
+    color: "#5d4037",
   },
   text: {
     fontSize: 14,
     marginBottom: 10,
+    color: "#4e342e",
   },
   genre: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#d39d55",
+    color: "#795548",
   },
   rating: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#d35400",
+    color: "#8d6e63",
   },
   imagesContainer: {
     marginTop: 10,
@@ -179,6 +219,39 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#fff",
     marginTop: 20,
+  },
+  gridContainer: {
+    padding: 10,
+  },
+  gridItem: {
+    flex: 1,
+    margin: 10,
+    padding: 15,
+    backgroundColor: "#fff2af",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: "#d39d55",
+  },
+  gridTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: "#3e2723",
+  },
+  gridAuthor: {
+    fontSize: 14,
+    fontStyle: "italic",
+    marginBottom: 5,
+    color: "#5d4037",
+  },
+  gridText: {
+    fontSize: 12,
+    color: "#4e342e",
   },
 });
 
