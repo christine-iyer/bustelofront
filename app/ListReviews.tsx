@@ -108,22 +108,26 @@ const ListReviews: React.FC = () => {
         onChangeText={(text) => setSearchQuery(text)}
       />
       <FlatList
-        ref={flatListRef}
-        data={filteredReviews}
-        renderItem={renderItem}
-        keyExtractor={(item) => item._id}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        snapToAlignment="center"
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: false }
-        )}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>No reviews found.</Text>
-        }
-      />
+  ref={flatListRef}
+  data={filteredReviews}
+  renderItem={renderItem}
+  keyExtractor={(item) => item._id}
+  horizontal
+  pagingEnabled
+  showsHorizontalScrollIndicator={false}
+  snapToAlignment="center"
+  onScroll={Animated.event(
+    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+    { useNativeDriver: false }
+  )}
+  contentContainerStyle={{
+    alignItems: "center", // Center the cards vertically
+    paddingVertical: 20, // Add padding to avoid squishing
+  }}
+  ListEmptyComponent={
+    <Text style={styles.emptyText}>No reviews found.</Text>
+  }
+/>
       <FlatList
         data={filteredReviews}
         renderItem={renderGridItem}
@@ -142,7 +146,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#640D5F",
-    justifyContent: "center",
+    justifyContent: "center", // Center the content horizontally
+    alignItems: "center", // Add some padding at the top
+  
   },
   searchBar: {
     height: 40,
@@ -155,6 +161,7 @@ const styles = StyleSheet.create({
   },
   reviewContainer: {
     width: width * 0.95,
+    height: 300, // Define a fixed height for the cards
     backgroundColor: "#fff2af",
     borderRadius: 10,
     padding: 20,
