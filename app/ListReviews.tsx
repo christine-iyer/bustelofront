@@ -6,9 +6,9 @@ import {
   FlatList,
   Dimensions,
   Animated,
-  ScrollView,
   Image,
   TextInput,
+  TouchableOpacity,
 } from "react-native";
 import axios from "axios";
 
@@ -23,10 +23,15 @@ interface Review {
   genre: string;
   userId: { _id: string; username: string } | null;
   images?: string[];
+  like: number;
+  comments: { _id: string; text: string; likes: number }[];
 }
 
 const ListReviews: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null); // For expanding comments
+  const [newComment, setNewComment] = useState<string>(""); // For adding a new comment
+  const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({}); // Track expanded comments
   const [searchQuery, setSearchQuery] = useState<string>("");
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList>(null);
@@ -35,7 +40,7 @@ const ListReviews: React.FC = () => {
     const fetchReviews = async () => {
       try {
         const response = await axios.get("https://franky-app-ix96j.ondigitalocean.app/api/review");
-        console.log("API Response:", response.data); 
+        console.log("API Response:", response.data);
         setReviews(response.data?.data || []);
       } catch (error) {
         console.error(error);
@@ -47,29 +52,6 @@ const ListReviews: React.FC = () => {
   const filteredReviews = (reviews || []).filter((review) =>
     review.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const renderItem = ({ item }: { item: Review }) => {
-    const randomImage =
-      item.images && item.images.length > 0
-        ? item.images[Math.floor(Math.random() * item.images.length)]
-        : null;
-
-    return (
-      <View style={styles.reviewContainer}>
-        <View style={styles.spine} />
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.author}>
-          By {item.author} ({item.userId ? item.userId.username : "Unknown"})
-        </Text>
-        <Text style={styles.text}>{item.text}</Text>
-        <Text style={styles.genre}>Genre: {item.genre}</Text>
-        <Text style={styles.rating}>Rating: {item.rating}/5</Text>
-        {randomImage && (
-          <Image source={{ uri: randomImage }} style={styles.reviewImage} />
-        )}
-      </View>
-    );
-  };
 
   const renderGridItem = ({ item }: { item: Review }) => {
     const randomImage =
@@ -87,17 +69,116 @@ const ListReviews: React.FC = () => {
         <Text style={styles.gridText} numberOfLines={3}>
           {item.text}
         </Text>
+        <View style={styles.buttonContainer}>
+          {/* Like Button */}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleLikeReview(item._id)}
+          >
+            <Text style={styles.buttonText}>Like</Text>
+          </TouchableOpacity>
+
+          {/* Comment Button */}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              setExpandedComments((prev) => ({
+                ...prev,
+                [item._id]: !expandedComments[item._id],
+              }))
+            }
+          >
+            <Text style={styles.buttonText}>
+              {expandedComments[item._id] ? "Hide Comments" : "Comments"}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Add Comment Button */}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleAddComment(item._id)}
+          >
+            <Text style={styles.buttonText}>Add Comment</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Expanded Comments Section */}
+        {expandedComments[item._id] &&
+          item.comments.map((comment) => (
+            <View key={comment._id} style={styles.commentContainer}>
+              <Text style={styles.commentText}>{comment.text}</Text>
+              <Text style={styles.commentLikes}>Likes: {comment.likes}</Text>
+              <TouchableOpacity
+                style={styles.comment}
+                onPress={() => handleLikeComment(item._id, comment._id)}
+              >
+                <Text style={styles.buttonText}>Like Comment</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
       </View>
     );
   };
 
-  if (!reviews) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.emptyText}>Loading reviews...</Text>
-      </View>
-    );
-  }
+  const handleAddComment = async (reviewId: string) => {
+    if (!newComment.trim()) return;
+
+    try {
+      const response = await axios.post(
+        `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/comment`,
+        { text: newComment }
+      );
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review._id === reviewId
+            ? { ...review, comments: [...review.comments, response.data] }
+            : review
+        )
+      );
+      setNewComment("");
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
+  };
+
+  const handleLikeReview = async (reviewId: string) => {
+    try {
+      await axios.post(
+        `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/like`
+      );
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review._id === reviewId ? { ...review, like: review.like + 1 } : review
+        )
+      );
+    } catch (error) {
+      console.error("Error liking review:", error);
+    }
+  };
+
+  const handleLikeComment = async (reviewId: string, commentId: string) => {
+    try {
+      await axios.post(
+        `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/comment/${commentId}/like`
+      );
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review._id === reviewId
+            ? {
+                ...review,
+                comments: review.comments.map((comment) =>
+                  comment._id === commentId
+                    ? { ...comment, likes: comment.likes + 1 }
+                    : comment
+                ),
+              }
+            : review
+        )
+      );
+    } catch (error) {
+      console.error("Error liking comment:", error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -107,27 +188,6 @@ const ListReviews: React.FC = () => {
         value={searchQuery}
         onChangeText={(text) => setSearchQuery(text)}
       />
-      <FlatList
-  ref={flatListRef}
-  data={filteredReviews}
-  renderItem={renderItem}
-  keyExtractor={(item) => item._id}
-  horizontal
-  pagingEnabled
-  showsHorizontalScrollIndicator={false}
-  snapToAlignment="center"
-  onScroll={Animated.event(
-    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-    { useNativeDriver: false }
-  )}
-  contentContainerStyle={{
-    alignItems: "center", // Center the cards vertically
-    paddingVertical: 20, // Add padding to avoid squishing
-  }}
-  ListEmptyComponent={
-    <Text style={styles.emptyText}>No reviews found.</Text>
-  }
-/>
       <FlatList
         data={filteredReviews}
         renderItem={renderGridItem}
@@ -146,9 +206,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#640D5F",
-    justifyContent: "center", // Center the content horizontally
-    alignItems: "center", // Add some padding at the top
-  
+    justifyContent: "center",
+    alignItems: "center",
   },
   searchBar: {
     height: 40,
@@ -158,74 +217,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     margin: 10,
     backgroundColor: "#fff",
-  },
-  reviewContainer: {
-    width: width * 0.95,
-    height: 300, // Define a fixed height for the cards
-    backgroundColor: "#fff2af",
-    borderRadius: 10,
-    padding: 20,
-    marginHorizontal: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 6,
-    borderWidth: 2,
-    borderColor: "#d39d55",
-    position: "relative",
-  },
-  spine: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: 10,
-    height: "100%",
-    backgroundColor: "#d39d55",
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
-    color: "#3e2723",
-  },
-  author: {
-    fontSize: 16,
-    fontStyle: "italic",
-    marginBottom: 10,
-    color: "#5d4037",
-  },
-  text: {
-    fontSize: 14,
-    marginBottom: 10,
-    color: "#4e342e",
-  },
-  genre: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#795548",
-  },
-  rating: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#8d6e63",
-  },
-  imagesContainer: {
-    marginTop: 10,
-  },
-  reviewImage: {
-    width: 100,
-    height: 100,
-    marginRight: 8,
-    borderRadius: 8,
-  },
-  emptyText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "#fff",
-    marginTop: 20,
   },
   gridContainer: {
     padding: 10,
@@ -259,6 +250,40 @@ const styles = StyleSheet.create({
   gridText: {
     fontSize: 12,
     color: "#4e342e",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  button: {
+    backgroundColor: "#d39d55",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 12,
+    textAlign: "center",
+  },
+  commentContainer: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  commentText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  commentLikes: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 5,
   },
 });
 
