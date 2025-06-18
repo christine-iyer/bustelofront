@@ -77,6 +77,7 @@ const ListReviews: React.FC = () => {
           >
             <Text style={styles.buttonText}>Like</Text>
           </TouchableOpacity>
+          <Text style={styles.buttonText}>how many likes? {item.like}</Text>
 
           {/* Comment Button */}
           <TouchableOpacity
@@ -120,17 +121,17 @@ const ListReviews: React.FC = () => {
     );
   };
 
-  const handleAddComment = async (reviewId: string) => {
+  const handleAddComment = async (id: string) => {
     if (!newComment.trim()) return;
-
+  
     try {
       const response = await axios.post(
-        `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/comment`,
+        `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/comment`,
         { text: newComment }
       );
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
-          review._id === reviewId
+          review._id === id
             ? { ...review, comments: [...review.comments, response.data] }
             : review
         )
@@ -141,29 +142,36 @@ const ListReviews: React.FC = () => {
     }
   };
 
-  const handleLikeReview = async (reviewId: string) => {
+  const handleLikeReview = async (id: string) => {
+    console.log("Liking review with ID:", id); // Debugging
+    setReviews((prevReviews) =>
+      prevReviews.map((review) =>
+        review._id === id ? { ...review, like: review.like + 1 } : review
+      )
+    );
     try {
       await axios.post(
-        `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/like`
-      );
-      setReviews((prevReviews) =>
-        prevReviews.map((review) =>
-          review._id === reviewId ? { ...review, like: review.like + 1 } : review
-        )
+        `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/like`
       );
     } catch (error) {
       console.error("Error liking review:", error);
+      // Revert state if the request fails
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review._id === id ? { ...review, like: review.like = 0 } : review
+        )
+      );
     }
   };
 
-  const handleLikeComment = async (reviewId: string, commentId: string) => {
+  const handleLikeComment = async (id: string, commentId: string) => {
     try {
       await axios.post(
-        `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/comment/${commentId}/like`
+        `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/comment/${commentId}/like`
       );
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
-          review._id === reviewId
+          review._id === id
             ? {
                 ...review,
                 comments: review.comments.map((comment) =>
@@ -203,6 +211,9 @@ const ListReviews: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  emptyText:{
+    color: "#fff",
+  },
   container: {
     flex: 1,
     backgroundColor: "#640D5F",
@@ -264,7 +275,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   buttonText: {
-    color: "#fff",
+    color: "red",
     fontSize: 12,
     textAlign: "center",
   },
