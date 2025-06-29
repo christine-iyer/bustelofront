@@ -268,14 +268,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   button: {
-    backgroundColor: "rgba(255, 0, 0, 0.2)",
+    backgroundColor: "rgba(25, 0, 0, 0.2)",
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 5,
     marginHorizontal: 5,
   },
   buttonText: {
-    color: "red",
+    color: "orange",
     fontSize: 12,
     textAlign: "center",
   },

@@ -57,14 +57,14 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     marginHorizontal: 5,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    backgroundColor: "rgba(25, 255, 255, 0.8)",
     borderRadius: 8,
     padding: 10,
     alignItems: "center",
     justifyContent: "center",
   },
   buttonText: {
-    color: "rgba(0, 0, 0, 0.8)",
+    color: "rgba(0, 0, 0, 0.6)",
     fontSize: 16,
     fontWeight: "bold",
   },
