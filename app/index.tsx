@@ -7,7 +7,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Boostelo! We are a Virtue Builder</Text>
+      <Text style={styles.title}>Welcome to Boostelo! Show us your favorites</Text>
     </View>
   );
 };
