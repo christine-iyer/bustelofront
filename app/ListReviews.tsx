@@ -61,14 +61,26 @@ const ListReviews: React.FC = () => {
 
     return (
       <View style={styles.gridItem}>
-        {randomImage && (
-          <Image source={{ uri: randomImage }} style={styles.reviewImage} />
-        )}
-        <Text style={styles.gridTitle}>{item.title}</Text>
-        <Text style={styles.gridAuthor}>By {item.author}</Text>
-        <Text style={styles.gridText} numberOfLines={3}>
-          {item.text}
-        </Text>
+        <View style={styles.imageContainer}>
+          {randomImage ? (
+            <Image source={{ uri: randomImage }} style={styles.reviewImage} />
+          ) : (
+            <View style={styles.placeholderImage}>
+              <Text style={styles.placeholderText}>📚</Text>
+            </View>
+          )}
+          <View style={styles.ratingBadge}>
+            <Text style={styles.ratingText}>⭐ {item.rating}</Text>
+          </View>
+        </View>
+        <View style={styles.contentContainer}>
+          <Text style={styles.gridTitle}>{item.title}</Text>
+          <Text style={styles.gridAuthor}>By {item.author}</Text>
+          <Text style={styles.genreTag}>{item.genre}</Text>
+          <Text style={styles.gridText} numberOfLines={2}>
+            {item.text}
+          </Text>
+        </View>
         <View style={styles.buttonContainer}>
           {/* Like Button */}
           <TouchableOpacity
@@ -110,7 +122,7 @@ const ListReviews: React.FC = () => {
               <Text style={styles.commentText}>{comment.text}</Text>
               <Text style={styles.commentLikes}>Likes: {comment.likes}</Text>
               <TouchableOpacity
-                style={styles.comment}
+                style={styles.button}
                 onPress={() => handleLikeComment(item._id, comment._id)}
               >
                 <Text style={styles.buttonText}>Like Comment</Text>
@@ -200,7 +212,7 @@ const ListReviews: React.FC = () => {
         data={filteredReviews}
         renderItem={renderGridItem}
         keyExtractor={(item) => item._id}
-        numColumns={3}
+        numColumns={2}
         contentContainerStyle={styles.gridContainer}
         ListEmptyComponent={
           <Text style={styles.emptyText}>No reviews found.</Text>
@@ -234,53 +246,110 @@ const styles = StyleSheet.create({
   },
   gridItem: {
     flex: 1,
-    margin: 10,
-    padding: 15,
-    backgroundColor: "#fff2af",
-    borderRadius: 10,
+    margin: 8,
+    backgroundColor: "#fff",
+    borderRadius: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 6,
-    borderWidth: 2,
-    borderColor: "#d39d55",
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+    overflow: "hidden",
+    minHeight: 300,
+  },
+  imageContainer: {
+    position: "relative",
+    height: 150,
+    width: "100%",
+  },
+  reviewImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  placeholderImage: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  placeholderText: {
+    fontSize: 40,
+    color: "#ccc",
+  },
+  ratingBadge: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  ratingText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  contentContainer: {
+    padding: 12,
+    flex: 1,
   },
   gridTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 5,
-    color: "#3e2723",
+    marginBottom: 4,
+    color: "#2c2c2c",
+    lineHeight: 20,
   },
   gridAuthor: {
-    fontSize: 14,
+    fontSize: 13,
     fontStyle: "italic",
-    marginBottom: 5,
-    color: "#5d4037",
+    marginBottom: 4,
+    color: "#666",
+  },
+  genreTag: {
+    fontSize: 11,
+    color: "#fff",
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    alignSelf: "flex-start",
+    marginBottom: 6,
+    overflow: "hidden",
   },
   gridText: {
     fontSize: 12,
-    color: "#4e342e",
+    color: "#555",
+    lineHeight: 16,
+    marginBottom: 8,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
+    marginTop: "auto",
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
   },
   button: {
-    backgroundColor: "rgba(25, 0, 0, 0.2)",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    marginHorizontal: 5,
+    backgroundColor: "#007AFF",
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    marginHorizontal: 2,
+    flex: 1,
   },
   buttonText: {
-    color: "orange",
-    fontSize: 12,
+    color: "#fff",
+    fontSize: 10,
     textAlign: "center",
+    fontWeight: "600",
   },
   commentContainer: {
-    marginTop: 10,
+    margin: 8,
     padding: 10,
     backgroundColor: "#f9f9f9",
     borderRadius: 8,
@@ -295,6 +364,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
     marginBottom: 5,
+  },
+  comment: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+    alignSelf: "flex-start",
   },
 });
 

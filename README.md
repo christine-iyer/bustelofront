@@ -1,3 +1,16 @@
+To rebuild and deploy after changes made to this repository:
+
+
+1. ```yarn build```
+
+1. ```yarn web```
+
+1. ```yarn build```
+
+1. ```rm -rf dist && yarn build```
+
+1. ```vercel --prod```
+
 ```js
 import { useState, useEffect } from "react";
 
