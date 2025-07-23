@@ -54,16 +54,58 @@ const ListReviews: React.FC = () => {
   );
 
   const renderGridItem = ({ item }: { item: Review }) => {
-    const randomImage =
-      item.images && item.images.length > 0
-        ? item.images[Math.floor(Math.random() * item.images.length)]
-        : null;
-
+    const cardWidth = (width - 52) / 2; // More precise card width calculation
+    
+    // Debug logging
+    console.log('Rendering card for:', item.title, 'Images:', item.images?.length || 0);
+    
     return (
       <View style={styles.gridItem}>
         <View style={styles.imageContainer}>
-          {randomImage ? (
-            <Image source={{ uri: randomImage }} style={styles.reviewImage} />
+          {item.images && item.images.length > 0 ? (
+            item.images.length === 1 ? (
+              // Single image - simple display
+              <Image 
+                source={{ uri: item.images[0] }} 
+                style={styles.reviewImage}
+                onError={(error) => console.log('Single image load error:', error)}
+                onLoad={() => console.log('Single image loaded successfully')}
+              />
+            ) : (
+              // Multiple images - carousel
+              <View style={styles.imageGallery}>
+                <FlatList
+                  data={item.images}
+                  horizontal
+                  pagingEnabled={false}
+                  showsHorizontalScrollIndicator={false}
+                  snapToInterval={cardWidth}
+                  snapToAlignment="center"
+                  decelerationRate="fast"
+                  keyExtractor={(image, index) => `${item._id}-${index}`}
+                  renderItem={({ item: imageUri }) => (
+                    <View style={[styles.imageSlide, { width: cardWidth }]}>
+                      <Image 
+                        source={{ uri: imageUri }} 
+                        style={styles.reviewImage}
+                        onError={(error) => console.log('Carousel image load error:', error)}
+                        onLoad={() => console.log('Carousel image loaded successfully')}
+                      />
+                    </View>
+                  )}
+                  contentContainerStyle={styles.imageCarouselContent}
+                  style={styles.imageCarousel}
+                />
+                <View style={styles.imageIndicators}>
+                  {item.images.map((_, index) => (
+                    <View
+                      key={index}
+                      style={styles.indicator}
+                    />
+                  ))}
+                </View>
+              </View>
+            )
           ) : (
             <View style={styles.placeholderImage}>
               <Text style={styles.placeholderText}>📚</Text>
@@ -72,6 +114,11 @@ const ListReviews: React.FC = () => {
           <View style={styles.ratingBadge}>
             <Text style={styles.ratingText}>⭐ {item.rating}</Text>
           </View>
+          {item.images && item.images.length > 1 && (
+            <View style={styles.imageCountBadge}>
+              <Text style={styles.imageCountText}>{item.images.length} 📷</Text>
+            </View>
+          )}
         </View>
         <View style={styles.contentContainer}>
           <Text style={styles.gridTitle}>{item.title}</Text>
@@ -135,7 +182,7 @@ const ListReviews: React.FC = () => {
 
   const handleAddComment = async (id: string) => {
     if (!newComment.trim()) return;
-  
+
     try {
       const response = await axios.post(
         `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/comment`,
@@ -185,13 +232,13 @@ const ListReviews: React.FC = () => {
         prevReviews.map((review) =>
           review._id === id
             ? {
-                ...review,
-                comments: review.comments.map((comment) =>
-                  comment._id === commentId
-                    ? { ...comment, likes: comment.likes + 1 }
-                    : comment
-                ),
-              }
+              ...review,
+              comments: review.comments.map((comment) =>
+                comment._id === commentId
+                  ? { ...comment, likes: comment.likes + 1 }
+                  : comment
+              ),
+            }
             : review
         )
       );
@@ -223,7 +270,7 @@ const ListReviews: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  emptyText:{
+  emptyText: {
     color: "#fff",
   },
   container: {
@@ -255,17 +302,69 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     overflow: "hidden",
-    minHeight: 300,
+    minHeight: 350,
+    maxWidth: (width - 52) / 2, // Ensure consistent width
   },
   imageContainer: {
     position: "relative",
-    height: 150,
+    height: 200,
     width: "100%",
+    backgroundColor: "#f8f8f8",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  imageGallery: {
+    width: "100%",
+    height: "100%",
+    overflow: "hidden",
+  },
+  imageCarousel: {
+    width: "100%",
+    height: "100%",
+  },
+  imageCarouselContent: {
+    alignItems: "flex-start",
+  },
+  imageSlide: {
+    height: 200,
+    justifyContent: "center",
+    alignItems: "center",
   },
   reviewImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
+    resizeMode: "contain",
+    backgroundColor: "#f8f8f8",
+  },
+  imageIndicators: {
+    position: "absolute",
+    bottom: 8,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  indicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    marginHorizontal: 2,
+  },
+  imageCountBadge: {
+    position: "absolute",
+    bottom: 8,
+    right: 8,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  imageCountText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "bold",
   },
   placeholderImage: {
     width: "100%",
