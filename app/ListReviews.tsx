@@ -14,6 +14,11 @@ import axios from "axios";
 
 const { width } = Dimensions.get("window");
 
+// Responsive breakpoints
+const isSmallScreen = width < 600; // Tablet/phone breakpoint
+const isLargeScreen = width >= 1024; // Desktop breakpoint
+const numColumns = isSmallScreen ? 1 : isLargeScreen ? 3 : 2;
+
 interface Review {
   _id: string;
   title: string;
@@ -54,7 +59,12 @@ const ListReviews: React.FC = () => {
   );
 
   const renderGridItem = ({ item }: { item: Review }) => {
-    const cardWidth = (width - 52) / 2; // More precise card width calculation
+    // Responsive card width calculation
+    const cardWidth = isSmallScreen 
+      ? width - 32 // Single column: full width minus margins
+      : isLargeScreen 
+        ? (width - 84) / 3 // Three columns
+        : (width - 52) / 2; // Two columns
     
     // Debug logging
     console.log('Rendering card for:', item.title, 'Images:', item.images?.length || 0);
@@ -265,7 +275,8 @@ const ListReviews: React.FC = () => {
         data={filteredReviews}
         renderItem={renderGridItem}
         keyExtractor={(item) => item._id}
-        numColumns={2}
+        numColumns={numColumns}
+        key={numColumns} // Force re-render when columns change
         contentContainerStyle={styles.gridContainer}
         ListEmptyComponent={
           <Text style={styles.emptyText}>No reviews found.</Text>
@@ -299,7 +310,7 @@ const styles = StyleSheet.create({
   },
   gridItem: {
     flex: 1,
-    margin: 8,
+    margin: isSmallScreen ? 4 : 8,
     backgroundColor: "#fff",
     borderRadius: 15,
     shadowColor: "#000",
@@ -308,13 +319,15 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     overflow: "hidden",
-    minHeight: 350,
-    maxWidth: (width - 52) / 2, // Ensure consistent width
+    maxWidth: isSmallScreen 
+      ? width - 32 // Single column: full width minus margins
+      : isLargeScreen 
+        ? (width - 84) / 3 // Three columns
+        : (width - 52) / 2, // Two columns
   },
   imageContainer: {
     position: "relative",
-    height: 100,
-  
+    width: "100%",
     backgroundColor: "#f8f8f8",
     justifyContent: "center",
     alignItems: "center",
@@ -332,13 +345,12 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   imageSlide: {
-    height: 200,
     justifyContent: "center",
     alignItems: "center",
   },
   reviewImage: {
     width: "100%",
-    height: "100%",
+    aspectRatio: isSmallScreen ? 2.5 : 2, // Wider images on small screens
     resizeMode: "contain",
     backgroundColor: "#f8f8f8",
   },
@@ -374,7 +386,7 @@ const styles = StyleSheet.create({
   },
   placeholderImage: {
     width: "100%",
-    height: "100%",
+    aspectRatio: isSmallScreen ? 2.5 : 2,
     backgroundColor: "#f0f0f0",
     justifyContent: "center",
     alignItems: "center",
@@ -398,66 +410,64 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   contentContainer: {
-    padding: 12,
-    flex: 1,
+    padding: isSmallScreen ? 6 : 4,
   },
   labelText: {
-    fontSize: 11,
+    fontSize: 9,
     fontWeight: "600",
     color: "#888",
-    marginTop: 2,
-    marginBottom: 1,
+    marginTop: 1,
+    marginBottom: 0,
     textTransform: "uppercase",
   },
   gridTitle: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 16 : 14,
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: 2,
     color: "#2c2c2c",
-    lineHeight: 20,
+    lineHeight: isSmallScreen ? 20 : 16,
   },
   gridAuthor: {
-    fontSize: 13,
+    fontSize: 11,
     fontStyle: "italic",
-    marginBottom: 4,
+    marginBottom: 2,
     color: "#666",
   },
   genreTag: {
-    fontSize: 11,
-    color: "#fff",
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
+    fontSize: 9,
+    color: "#007AFF",
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 8,
     alignSelf: "flex-start",
-    marginBottom: 6,
+    marginBottom: 3,
     overflow: "hidden",
   },
   gridText: {
-    fontSize: 12,
+    fontSize: isSmallScreen ? 12 : 10,
     color: "#555",
-    lineHeight: 16,
-    marginBottom: 8,
+    lineHeight: isSmallScreen ? 16 : 14,
+    marginBottom: 4,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: "auto",
-    paddingTop: 8,
+    marginTop: 4,
+    paddingTop: 4,
     borderTopWidth: 1,
     borderTopColor: "#f0f0f0",
   },
   button: {
     backgroundColor: "#007AFF",
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    borderRadius: 6,
-    marginHorizontal: 2,
+    paddingVertical: 3,
+    paddingHorizontal: 4,
+    borderRadius: 4,
+    marginHorizontal: 1,
     flex: 1,
   },
   buttonText: {
     color: "#fff",
-    fontSize: 10,
+    fontSize: 8,
     textAlign: "center",
     fontWeight: "600",
   },
