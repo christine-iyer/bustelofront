@@ -121,10 +121,16 @@ const ListReviews: React.FC = () => {
           )}
         </View>
         <View style={styles.contentContainer}>
+          <Text style={styles.labelText}>Title:</Text>
           <Text style={styles.gridTitle}>{item.title}</Text>
-          <Text style={styles.gridAuthor}>By {item.author}</Text>
+          <Text style={styles.labelText}>Author:</Text>
+          <Text style={styles.gridAuthor}>
+            {item.userId?.username || item.author || "Unknown Author"}
+          </Text>
+          <Text style={styles.labelText}>Genre:</Text>
           <Text style={styles.genreTag}>{item.genre}</Text>
-          <Text style={styles.gridText} numberOfLines={2}>
+          <Text style={styles.labelText}>Review:</Text>
+          <Text style={styles.gridText} numberOfLines={1}>
             {item.text}
           </Text>
         </View>
@@ -307,8 +313,8 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     position: "relative",
-    height: 200,
-    width: "100%",
+    height: 100,
+  
     backgroundColor: "#f8f8f8",
     justifyContent: "center",
     alignItems: "center",
@@ -394,6 +400,14 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 12,
     flex: 1,
+  },
+  labelText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#888",
+    marginTop: 2,
+    marginBottom: 1,
+    textTransform: "uppercase",
   },
   gridTitle: {
     fontSize: 16,
