@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
   reviewImage: {
     width: "100%",
     height: 150, // Fixed height for consistency
-    resizeMode: "cover",
+    resizeMode: "contain",
     backgroundColor: "#f8f8f8",
   },
   imageIndicators: {
