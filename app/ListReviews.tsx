@@ -36,9 +36,11 @@ interface Review {
 
 const ListReviews: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [selectedReview, setSelectedReview] = useState<Review | null>(null); // For expanding comments
-  const [newComment, setNewComment] = useState<string>(""); // For adding a new comment
-  const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({}); // Track expanded comments
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [newComment, setNewComment] = useState<string>("");
+  const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({});
+  const [showCommentForm, setShowCommentForm] = useState<{ [key: string]: boolean }>({});
+  const [commentText, setCommentText] = useState<{ [key: string]: string }>({});
   const [searchQuery, setSearchQuery] = useState<string>("");
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList>(null);
@@ -50,25 +52,6 @@ const ListReviews: React.FC = () => {
         console.log("API Response:", response.data);
         console.log("Sample review structure:", response.data?.data?.[0]);
         setReviews(response.data?.data || []);
-        
-        // Try to discover available endpoints
-        try {
-          console.log("Checking if /api/reviews exists...");
-          const reviewsResponse = await axios.get("https://franky-app-ix96j.ondigitalocean.app/api/reviews");
-          console.log("Reviews endpoint response:", reviewsResponse.data);
-        } catch (e) {
-          console.log("/api/reviews endpoint not found");
-        }
-        
-        // Check if there's an API documentation endpoint
-        try {
-          console.log("Checking for API docs...");
-          const docsResponse = await axios.get("https://franky-app-ix96j.ondigitalocean.app/api");
-          console.log("API docs response:", docsResponse.data);
-        } catch (e) {
-          console.log("No API docs found");
-        }
-        
       } catch (error) {
         console.error(error);
       }
@@ -79,6 +62,113 @@ const ListReviews: React.FC = () => {
   const filteredReviews = (reviews || []).filter((review) =>
     review.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleAddComment = async (reviewId: string) => {
+    console.log("handleAddComment called for review:", reviewId);
+    
+    const commentContent = commentText[reviewId]?.trim();
+    if (!commentContent) {
+      alert("Please enter a comment before submitting.");
+      return;
+    }
+    
+    try {
+      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/comment`;
+      console.log("Making request to:", url);
+      console.log("Sending comment:", commentContent);
+      
+      const response = await axios.post(url, { text: commentContent });
+      console.log("Comment response:", response.data);
+      
+      // Update the reviews state with the new comment
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review._id === reviewId
+            ? { 
+                ...review, 
+                comments: [...(review.comments || []), response.data] 
+              }
+            : review
+        )
+      );
+      
+      // Clear the comment form
+      setCommentText(prev => ({ ...prev, [reviewId]: "" }));
+      setShowCommentForm(prev => ({ ...prev, [reviewId]: false }));
+      
+    } catch (error: any) {
+      console.error("Error adding comment:", error);
+      console.error("Error details:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      alert("Failed to add comment. Please try again.");
+    }
+  };
+
+  const handleLikeReview = async (id: string) => {
+    console.log("Liking review with ID:", id);
+    
+    // Find current review to get current like count
+    const currentReview = reviews.find(review => review._id === id);
+    const newLikeCount = (currentReview?.like || 0) + 1;
+    
+    // Optimistically update the UI first
+    setReviews((prevReviews) =>
+      prevReviews.map((review) =>
+        review._id === id ? { ...review, like: newLikeCount } : review
+      )
+    );
+    
+    try {
+      // Your backend expects a PUT request with the new like count in the body
+      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}`;
+      console.log("Making request to:", url);
+      console.log("Sending like count:", newLikeCount);
+      
+      const response = await axios.put(url, { like: newLikeCount });
+      console.log("Like response:", response.data);
+      console.log("Response status:", response.status);
+    } catch (error: any) {
+      console.error("Error liking review:", error);
+      console.error("Error details:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      // Revert state if the request fails
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review._id === id ? { ...review, like: Math.max(0, (currentReview?.like || 0)) } : review
+        )
+      );
+    }
+  };
+
+  const handleLikeComment = async (id: string, commentId: string) => {
+    console.log("Liking comment:", commentId, "for review:", id);
+   
+    try {
+      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/comment/${commentId}/like`;
+      console.log("Liking comment, making request to:", url);
+      const response = await axios.post(url);
+      console.log("Like comment response:", response.data);
+      
+      setReviews((prevReviews) =>
+        prevReviews.map((review) =>
+          review._id === id
+            ? {
+              ...review,
+              comments: review.comments?.map((comment) =>
+                comment._id === commentId
+                  ? { ...comment, likes: comment.likes + 1 }
+                  : comment
+              ) || [],
+            }
+            : review
+        )
+      );
+    } catch (error: any) {
+      console.error("Error liking comment:", error);
+      console.error("Error details:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+    }
+  };
 
   const renderGridItem = ({ item }: { item: Review }) => {
     // Responsive card width calculation
@@ -221,7 +311,10 @@ const ListReviews: React.FC = () => {
             style={styles.actionButton}
             onPress={() => {
               console.log("Add comment button pressed for review:", item._id);
-              handleAddComment(item._id);
+              setShowCommentForm(prev => ({
+                ...prev,
+                [item._id]: !showCommentForm[item._id]
+              }));
             }}
             activeOpacity={0.7}
           >
@@ -229,6 +322,44 @@ const ListReviews: React.FC = () => {
             <Text style={styles.actionText}>Add</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Comment Form */}
+        {showCommentForm[item._id] && (
+          <View style={styles.commentForm}>
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Write your comment..."
+              value={commentText[item._id] || ""}
+              onChangeText={(text) => 
+                setCommentText(prev => ({ ...prev, [item._id]: text }))
+              }
+              multiline
+              numberOfLines={3}
+              maxLength={500}
+            />
+            <View style={styles.commentFormActions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => {
+                  setShowCommentForm(prev => ({ ...prev, [item._id]: false }));
+                  setCommentText(prev => ({ ...prev, [item._id]: "" }));
+                }}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.submitButton,
+                  { opacity: commentText[item._id]?.trim() ? 1 : 0.5 }
+                ]}
+                onPress={() => handleAddComment(item._id)}
+                disabled={!commentText[item._id]?.trim()}
+              >
+                <Text style={styles.submitButtonText}>Post Comment</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
         {/* Expanded Comments Section */}
         {expandedComments[item._id] &&
@@ -248,114 +379,6 @@ const ListReviews: React.FC = () => {
           ))}
       </View>
     );
-  };
-
-  const handleAddComment = async (id: string) => {
-    console.log("handleAddComment called for review:", id);
-    
-    // Comments functionality is not implemented in your backend yet
-    console.log("Comments feature not available - backend endpoints missing");
-    
-    // For now, just show a message
-    alert("Comments feature not yet implemented on the backend. Please add comment routes and controller methods.");
-    
-    /* 
-    TODO: Once you add comment functionality to your backend, use this:
-    
-    const testComment = "Test comment from React app";
-    console.log("Adding test comment:", testComment);
-    
-    try {
-      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/comment`;
-      console.log("Making request to:", url);
-      const response = await axios.post(url, { text: testComment });
-      console.log("Comment response:", response.data);
-      
-      setReviews((prevReviews) =>
-        prevReviews.map((review) =>
-          review._id === id
-            ? { ...review, comments: [...(review.comments || []), response.data] }
-            : review
-        )
-      );
-    } catch (error: any) {
-      console.error("Error adding comment:", error);
-      console.error("Error details:", error.response?.data);
-      console.error("Error status:", error.response?.status);
-    }
-    */
-  };
-
-  const handleLikeReview = async (id: string) => {
-    console.log("Liking review with ID:", id);
-    
-    // Find current review to get current like count
-    const currentReview = reviews.find(review => review._id === id);
-    const newLikeCount = (currentReview?.like || 0) + 1;
-    
-    // Optimistically update the UI first
-    setReviews((prevReviews) =>
-      prevReviews.map((review) =>
-        review._id === id ? { ...review, like: newLikeCount } : review
-      )
-    );
-    
-    try {
-      // Your backend expects a PUT request with the new like count in the body
-      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}`;
-      console.log("Making request to:", url);
-      console.log("Sending like count:", newLikeCount);
-      
-      const response = await axios.put(url, { like: newLikeCount });
-      console.log("Like response:", response.data);
-      console.log("Response status:", response.status);
-    } catch (error: any) {
-      console.error("Error liking review:", error);
-      console.error("Error details:", error.response?.data);
-      console.error("Error status:", error.response?.status);
-      // Revert state if the request fails
-      setReviews((prevReviews) =>
-        prevReviews.map((review) =>
-          review._id === id ? { ...review, like: Math.max(0, (currentReview?.like || 0)) } : review
-        )
-      );
-    }
-  };
-
-  const handleLikeComment = async (id: string, commentId: string) => {
-    // Comment functionality is not implemented in your backend yet
-    console.log("Comment like feature not available - backend endpoints missing");
-    alert("Comment like feature not yet implemented on the backend.");
-    
-    /* 
-    TODO: Once you add comment functionality to your backend, use this:
-    
-    try {
-      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/comment/${commentId}/like`;
-      console.log("Liking comment, making request to:", url);
-      const response = await axios.post(url);
-      console.log("Like comment response:", response.data);
-      
-      setReviews((prevReviews) =>
-        prevReviews.map((review) =>
-          review._id === id
-            ? {
-              ...review,
-              comments: review.comments?.map((comment) =>
-                comment._id === commentId
-                  ? { ...comment, likes: comment.likes + 1 }
-                  : comment
-              ) || [],
-            }
-            : review
-        )
-      );
-    } catch (error: any) {
-      console.error("Error liking comment:", error);
-      console.error("Error details:", error.response?.data);
-      console.error("Error status:", error.response?.status);
-    }
-    */
   };
 
   return (
@@ -575,6 +598,54 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: 9,
     color: "#666",
+    fontWeight: "500",
+  },
+  commentForm: {
+    margin: 8,
+    padding: 12,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  commentInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 10,
+    backgroundColor: "#fff",
+    fontSize: 14,
+    minHeight: 80,
+    textAlignVertical: "top",
+    marginBottom: 8,
+  },
+  commentFormActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 8,
+  },
+  cancelButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    backgroundColor: "#f0f0f0",
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  cancelButtonText: {
+    fontSize: 12,
+    color: "#666",
+    fontWeight: "500",
+  },
+  submitButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    backgroundColor: "#007AFF",
+  },
+  submitButtonText: {
+    fontSize: 12,
+    color: "#fff",
     fontWeight: "500",
   },
   commentContainer: {
