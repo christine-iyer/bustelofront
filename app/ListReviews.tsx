@@ -29,7 +29,9 @@ interface Review {
   userId: { _id: string; username: string } | null;
   images?: string[];
   like: number;
-  comments: { _id: string; text: string; likes: number }[];
+  comments?: { _id: string; text: string; likes: number }[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const ListReviews: React.FC = () => {
@@ -46,7 +48,27 @@ const ListReviews: React.FC = () => {
       try {
         const response = await axios.get("https://franky-app-ix96j.ondigitalocean.app/api/review");
         console.log("API Response:", response.data);
+        console.log("Sample review structure:", response.data?.data?.[0]);
         setReviews(response.data?.data || []);
+        
+        // Try to discover available endpoints
+        try {
+          console.log("Checking if /api/reviews exists...");
+          const reviewsResponse = await axios.get("https://franky-app-ix96j.ondigitalocean.app/api/reviews");
+          console.log("Reviews endpoint response:", reviewsResponse.data);
+        } catch (e) {
+          console.log("/api/reviews endpoint not found");
+        }
+        
+        // Check if there's an API documentation endpoint
+        try {
+          console.log("Checking for API docs...");
+          const docsResponse = await axios.get("https://franky-app-ix96j.ondigitalocean.app/api");
+          console.log("API docs response:", docsResponse.data);
+        } catch (e) {
+          console.log("No API docs found");
+        }
+        
       } catch (error) {
         console.error(error);
       }
@@ -78,16 +100,20 @@ const ListReviews: React.FC = () => {
               <Image 
                 source={{ uri: item.images[0] }} 
                 style={styles.reviewImage}
-                onError={(error) => console.log('Single image load error:', error)}
-                onLoad={() => console.log('Single image loaded successfully')}
+                onError={(error) => {
+                  console.log('Single image load error:', error.nativeEvent.error);
+                  console.log('Image URL:', item.images?.[0]);
+                }}
+                onLoad={() => console.log('Single image loaded successfully:', item.images?.[0])}
+                resizeMode="cover"
               />
             ) : (
               // Multiple images - carousel
               <View style={styles.imageGallery}>
                 <FlatList
-                  data={item.images}
+                  data={item.images.filter(img => img && img.trim() !== '')}
                   horizontal
-                  pagingEnabled={false}
+                  pagingEnabled={true}
                   showsHorizontalScrollIndicator={false}
                   snapToInterval={cardWidth}
                   snapToAlignment="center"
@@ -98,8 +124,12 @@ const ListReviews: React.FC = () => {
                       <Image 
                         source={{ uri: imageUri }} 
                         style={styles.reviewImage}
-                        onError={(error) => console.log('Carousel image load error:', error)}
-                        onLoad={() => console.log('Carousel image loaded successfully')}
+                        onError={(error) => {
+                          console.log('Carousel image load error:', error.nativeEvent.error);
+                          console.log('Image URL:', imageUri);
+                        }}
+                        onLoad={() => console.log('Carousel image loaded successfully:', imageUri)}
+                        resizeMode="cover"
                       />
                     </View>
                   )}
@@ -107,7 +137,7 @@ const ListReviews: React.FC = () => {
                   style={styles.imageCarousel}
                 />
                 <View style={styles.imageIndicators}>
-                  {item.images.map((_, index) => (
+                  {item.images.filter(img => img && img.trim() !== '').map((_, index) => (
                     <View
                       key={index}
                       style={styles.indicator}
@@ -121,9 +151,6 @@ const ListReviews: React.FC = () => {
               <Text style={styles.placeholderText}>📚</Text>
             </View>
           )}
-          <View style={styles.ratingBadge}>
-            <Text style={styles.ratingText}>⭐ {item.rating}</Text>
-          </View>
           {item.images && item.images.length > 1 && (
             <View style={styles.imageCountBadge}>
               <Text style={styles.imageCountText}>{item.images.length} 📷</Text>
@@ -139,57 +166,84 @@ const ListReviews: React.FC = () => {
           </Text>
           <Text style={styles.labelText}>Genre:</Text>
           <Text style={styles.genreTag}>{item.genre}</Text>
+          {(item.createdAt || item.updatedAt) && (
+            <>
+              <Text style={styles.labelText}>Date:</Text>
+              <Text style={styles.dateText}>
+                {new Date(item.createdAt || item.updatedAt || '').toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </Text>
+            </>
+          )}
           <Text style={styles.labelText}>Review:</Text>
           <Text style={styles.gridText} numberOfLines={1}>
             {item.text}
           </Text>
         </View>
-        <View style={styles.buttonContainer}>
+        <View style={styles.actionBar}>
           {/* Like Button */}
           <TouchableOpacity
-            style={styles.button}
-            onPress={() => handleLikeReview(item._id)}
+            style={[styles.actionButton, { backgroundColor: '#f0f0f0' }]}
+            onPress={() => {
+              console.log("Like button pressed for review:", item._id);
+              console.log("Current like count:", item.like);
+              handleLikeReview(item._id);
+            }}
+            activeOpacity={0.7}
           >
-            <Text style={styles.buttonText}>Like</Text>
+            <Text style={styles.actionIcon}>👍</Text>
+            <Text style={styles.actionCount}>{item.like || 0}</Text>
           </TouchableOpacity>
-          <Text style={styles.buttonText}>how many likes? {item.like}</Text>
 
           {/* Comment Button */}
           <TouchableOpacity
-            style={styles.button}
-            onPress={() =>
+            style={styles.actionButton}
+            onPress={() => {
+              console.log("Comment button pressed for review:", item._id);
               setExpandedComments((prev) => ({
                 ...prev,
                 [item._id]: !expandedComments[item._id],
-              }))
-            }
+              }));
+            }}
+            activeOpacity={0.7}
           >
-            <Text style={styles.buttonText}>
-              {expandedComments[item._id] ? "Hide Comments" : "Comments"}
-            </Text>
+            <Text style={styles.actionIcon}>💬</Text>
+            <Text style={styles.actionCount}>{item.comments?.length || 0}</Text>
           </TouchableOpacity>
 
           {/* Add Comment Button */}
           <TouchableOpacity
-            style={styles.button}
-            onPress={() => handleAddComment(item._id)}
+            style={styles.actionButton}
+            onPress={() => {
+              console.log("Add comment button pressed for review:", item._id);
+              handleAddComment(item._id);
+            }}
+            activeOpacity={0.7}
           >
-            <Text style={styles.buttonText}>Add Comment</Text>
+            <Text style={styles.actionIcon}>✍️</Text>
+            <Text style={styles.actionText}>Add</Text>
           </TouchableOpacity>
         </View>
 
         {/* Expanded Comments Section */}
         {expandedComments[item._id] &&
-          item.comments.map((comment) => (
+          item.comments?.map((comment) => (
             <View key={comment._id} style={styles.commentContainer}>
               <Text style={styles.commentText}>{comment.text}</Text>
-              <Text style={styles.commentLikes}>Likes: {comment.likes}</Text>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handleLikeComment(item._id, comment._id)}
-              >
-                <Text style={styles.buttonText}>Like Comment</Text>
-              </TouchableOpacity>
+              <View style={styles.commentActions}>
+                <Text style={styles.commentLikes}>👍 {comment.likes}</Text>
+                <TouchableOpacity
+                  style={styles.commentLikeButton}
+                  onPress={() => handleLikeComment(item._id, comment._id)}
+                >
+                  <Text style={styles.commentLikeText}>Like</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           ))}
       </View>
@@ -197,70 +251,111 @@ const ListReviews: React.FC = () => {
   };
 
   const handleAddComment = async (id: string) => {
-    if (!newComment.trim()) return;
-
+    console.log("handleAddComment called for review:", id);
+    
+    // Comments functionality is not implemented in your backend yet
+    console.log("Comments feature not available - backend endpoints missing");
+    
+    // For now, just show a message
+    alert("Comments feature not yet implemented on the backend. Please add comment routes and controller methods.");
+    
+    /* 
+    TODO: Once you add comment functionality to your backend, use this:
+    
+    const testComment = "Test comment from React app";
+    console.log("Adding test comment:", testComment);
+    
     try {
-      const response = await axios.post(
-        `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/comment`,
-        { text: newComment }
-      );
+      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/comment`;
+      console.log("Making request to:", url);
+      const response = await axios.post(url, { text: testComment });
+      console.log("Comment response:", response.data);
+      
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === id
-            ? { ...review, comments: [...review.comments, response.data] }
+            ? { ...review, comments: [...(review.comments || []), response.data] }
             : review
         )
       );
-      setNewComment("");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding comment:", error);
+      console.error("Error details:", error.response?.data);
+      console.error("Error status:", error.response?.status);
     }
+    */
   };
 
   const handleLikeReview = async (id: string) => {
-    console.log("Liking review with ID:", id); // Debugging
+    console.log("Liking review with ID:", id);
+    
+    // Find current review to get current like count
+    const currentReview = reviews.find(review => review._id === id);
+    const newLikeCount = (currentReview?.like || 0) + 1;
+    
+    // Optimistically update the UI first
     setReviews((prevReviews) =>
       prevReviews.map((review) =>
-        review._id === id ? { ...review, like: review.like + 1 } : review
+        review._id === id ? { ...review, like: newLikeCount } : review
       )
     );
+    
     try {
-      await axios.post(
-        `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/like`
-      );
-    } catch (error) {
+      // Your backend expects a PUT request with the new like count in the body
+      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}`;
+      console.log("Making request to:", url);
+      console.log("Sending like count:", newLikeCount);
+      
+      const response = await axios.put(url, { like: newLikeCount });
+      console.log("Like response:", response.data);
+      console.log("Response status:", response.status);
+    } catch (error: any) {
       console.error("Error liking review:", error);
+      console.error("Error details:", error.response?.data);
+      console.error("Error status:", error.response?.status);
       // Revert state if the request fails
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
-          review._id === id ? { ...review, like: review.like = 0 } : review
+          review._id === id ? { ...review, like: Math.max(0, (currentReview?.like || 0)) } : review
         )
       );
     }
   };
 
   const handleLikeComment = async (id: string, commentId: string) => {
+    // Comment functionality is not implemented in your backend yet
+    console.log("Comment like feature not available - backend endpoints missing");
+    alert("Comment like feature not yet implemented on the backend.");
+    
+    /* 
+    TODO: Once you add comment functionality to your backend, use this:
+    
     try {
-      await axios.post(
-        `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/comment/${commentId}/like`
-      );
+      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/comment/${commentId}/like`;
+      console.log("Liking comment, making request to:", url);
+      const response = await axios.post(url);
+      console.log("Like comment response:", response.data);
+      
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === id
             ? {
               ...review,
-              comments: review.comments.map((comment) =>
+              comments: review.comments?.map((comment) =>
                 comment._id === commentId
                   ? { ...comment, likes: comment.likes + 1 }
                   : comment
-              ),
+              ) || [],
             }
             : review
         )
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error liking comment:", error);
+      console.error("Error details:", error.response?.data);
+      console.error("Error status:", error.response?.status);
     }
+    */
   };
 
   return (
@@ -278,6 +373,8 @@ const ListReviews: React.FC = () => {
         numColumns={numColumns}
         key={numColumns} // Force re-render when columns change
         contentContainerStyle={styles.gridContainer}
+        columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
+        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
         ListEmptyComponent={
           <Text style={styles.emptyText}>No reviews found.</Text>
         }
@@ -308,6 +405,9 @@ const styles = StyleSheet.create({
   gridContainer: {
     padding: 10,
   },
+  row: {
+    justifyContent: "space-around",
+  },
   gridItem: {
     flex: 1,
     margin: isSmallScreen ? 4 : 8,
@@ -319,7 +419,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     overflow: "hidden",
-    maxWidth: isSmallScreen 
+    width: isSmallScreen 
       ? width - 32 // Single column: full width minus margins
       : isLargeScreen 
         ? (width - 84) / 3 // Three columns
@@ -350,8 +450,8 @@ const styles = StyleSheet.create({
   },
   reviewImage: {
     width: "100%",
-    aspectRatio: isSmallScreen ? 2.5 : 2, // Wider images on small screens
-    resizeMode: "contain",
+    height: 150, // Fixed height for consistency
+    resizeMode: "cover",
     backgroundColor: "#f8f8f8",
   },
   imageIndicators: {
@@ -386,7 +486,7 @@ const styles = StyleSheet.create({
   },
   placeholderImage: {
     width: "100%",
-    aspectRatio: isSmallScreen ? 2.5 : 2,
+    height: 120, // Fixed height only for placeholder
     backgroundColor: "#f0f0f0",
     justifyContent: "center",
     alignItems: "center",
@@ -395,22 +495,9 @@ const styles = StyleSheet.create({
     fontSize: 40,
     color: "#ccc",
   },
-  ratingBadge: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  ratingText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "bold",
-  },
   contentContainer: {
-    padding: isSmallScreen ? 6 : 4,
+    padding: 6,
+    minHeight: 60, // Minimal height for text content
   },
   labelText: {
     fontSize: 9,
@@ -449,44 +536,80 @@ const styles = StyleSheet.create({
     lineHeight: isSmallScreen ? 16 : 14,
     marginBottom: 4,
   },
-  buttonContainer: {
+  dateText: {
+    fontSize: 10,
+    color: "#888",
+    fontStyle: "italic",
+    marginBottom: 2,
+  },
+  actionBar: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 4,
-    paddingTop: 4,
+    justifyContent: "space-around",
+    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 8,
     borderTopWidth: 1,
     borderTopColor: "#f0f0f0",
+    backgroundColor: "#fafafa",
   },
-  button: {
-    backgroundColor: "#007AFF",
-    paddingVertical: 3,
-    paddingHorizontal: 4,
-    borderRadius: 4,
-    marginHorizontal: 1,
-    flex: 1,
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    backgroundColor: "transparent",
+    minWidth: 50,
+    minHeight: 36,
+    justifyContent: "center",
   },
-  buttonText: {
-    color: "#fff",
-    fontSize: 8,
-    textAlign: "center",
-    fontWeight: "600",
+  actionIcon: {
+    fontSize: 14,
+    marginRight: 2,
+  },
+  actionCount: {
+    fontSize: 10,
+    color: "#666",
+    fontWeight: "500",
+  },
+  actionText: {
+    fontSize: 9,
+    color: "#666",
+    fontWeight: "500",
   },
   commentContainer: {
     margin: 8,
-    padding: 10,
+    padding: 8,
     backgroundColor: "#f9f9f9",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#eee",
   },
   commentText: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#333",
+    marginBottom: 4,
+  },
+  commentActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   commentLikes: {
-    fontSize: 12,
+    fontSize: 10,
     color: "#666",
-    marginBottom: 5,
+    fontWeight: "500",
+  },
+  commentLikeButton: {
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 8,
+    backgroundColor: "#f0f0f0",
+  },
+  commentLikeText: {
+    fontSize: 10,
+    color: "#007AFF",
+    fontWeight: "500",
   },
   comment: {
     backgroundColor: "#007AFF",
