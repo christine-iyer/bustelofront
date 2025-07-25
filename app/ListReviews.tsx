@@ -243,72 +243,73 @@ const ListReviews: React.FC = () => {
   };
 
   const handleSaveComment = async () => {
-    if (!editingComment) return;
+  if (!editingComment) return;
+  
+  try {
+    // Fixed URL structure - removed '/like' part
+    const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${editingComment.reviewId}/comment/${editingComment.commentId}`;
+    await axios.put(url, { text: editCommentText });
     
-    try {
-      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${editingComment.reviewId}/comment/${editingComment.commentId}`;
-      await axios.put(url, { text: editCommentText });
-      
-      setReviews(prevReviews =>
-        prevReviews.map(review =>
-          review._id === editingComment.reviewId
-            ? {
-                ...review,
-                comments: review.comments?.map(comment =>
-                  comment._id === editingComment.commentId
-                    ? { ...comment, text: editCommentText }
-                    : comment
-                ) || []
-              }
-            : review
-        )
-      );
-      
-      setEditingComment(null);
-      setEditCommentText("");
-      Alert.alert("Success", "Comment updated successfully!");
-    } catch (error: any) {
-      console.error("Error updating comment:", error);
-      Alert.alert("Error", "Failed to update comment. Please try again.");
-    }
-  };
+    setReviews(prevReviews =>
+      prevReviews.map(review =>
+        review._id === editingComment.reviewId
+          ? {
+              ...review,
+              comments: review.comments?.map(comment =>
+                comment._id === editingComment.commentId
+                  ? { ...comment, text: editCommentText }
+                  : comment
+              ) || []
+            }
+          : review
+      )
+    );
+    
+    setEditingComment(null);
+    setEditCommentText("");
+    Alert.alert("Success", "Comment updated successfully!");
+  } catch (error: any) {
+    console.error("Error updating comment:", error);
+    Alert.alert("Error", "Failed to update comment. Please try again.");
+  }
+};
 
   const handleDeleteComment = (reviewId: string, commentId: string) => {
-    Alert.alert(
-      "Delete Comment",
-      "Are you sure you want to delete this comment?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Delete", 
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/comment/${commentId}`;
-              await axios.delete(url);
-              
-              setReviews(prevReviews =>
-                prevReviews.map(review =>
-                  review._id === reviewId
-                    ? {
-                        ...review,
-                        comments: review.comments?.filter(comment => comment._id !== commentId) || []
-                      }
-                    : review
-                )
-              );
-              
-              Alert.alert("Success", "Comment deleted successfully!");
-            } catch (error: any) {
-              console.error("Error deleting comment:", error);
-              Alert.alert("Error", "Failed to delete comment. Please try again.");
-            }
+  Alert.alert(
+    "Delete Comment",
+    "Are you sure you want to delete this comment?",
+    [
+      { text: "Cancel", style: "cancel" },
+      { 
+        text: "Delete", 
+        style: "destructive",
+        onPress: async () => {
+          try {
+            // Fixed URL structure - this should work now
+            const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/comment/${commentId}`;
+            await axios.delete(url);
+            
+            setReviews(prevReviews =>
+              prevReviews.map(review =>
+                review._id === reviewId
+                  ? {
+                      ...review,
+                      comments: review.comments?.filter(comment => comment._id !== commentId) || []
+                    }
+                  : review
+              )
+            );
+            
+            Alert.alert("Success", "Comment deleted successfully!");
+          } catch (error: any) {
+            console.error("Error deleting comment:", error);
+            Alert.alert("Error", "Failed to delete comment. Please try again.");
           }
         }
-      ]
-    );
-  };
-
+      }
+    ]
+  );
+};
   const renderGridItem = ({ item }: { item: Review }) => {
     const cardWidth = isSmallScreen 
       ? width - 32
