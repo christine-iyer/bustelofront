@@ -9,6 +9,7 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import axios from "axios";
 
@@ -42,6 +43,10 @@ const ListReviews: React.FC = () => {
   const [showCommentForm, setShowCommentForm] = useState<{ [key: string]: boolean }>({});
   const [commentText, setCommentText] = useState<{ [key: string]: string }>({});
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [editingReview, setEditingReview] = useState<string | null>(null);
+  const [editingComment, setEditingComment] = useState<{ reviewId: string; commentId: string } | null>(null);
+  const [editReviewData, setEditReviewData] = useState<{ title: string; text: string; author: string; genre: string }>({ title: "", text: "", author: "", genre: "" });
+  const [editCommentText, setEditCommentText] = useState<string>("");
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList>(null);
 
@@ -170,23 +175,154 @@ const ListReviews: React.FC = () => {
     }
   };
 
-  const renderGridItem = ({ item }: { item: Review }) => {
-    // Responsive card width calculation
-    const cardWidth = isSmallScreen 
-      ? width - 32 // Single column: full width minus margins
-      : isLargeScreen 
-        ? (width - 84) / 3 // Three columns
-        : (width - 52) / 2; // Two columns
+  // New edit review functionality
+  const handleEditReview = (review: Review) => {
+    setEditingReview(review._id);
+    setEditReviewData({
+      title: review.title,
+      text: review.text,
+      author: review.author,
+      genre: review.genre
+    });
+  };
+
+  const handleSaveReview = async (reviewId: string) => {
+    try {
+      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}`;
+      const response = await axios.put(url, editReviewData);
+      
+      setReviews(prevReviews =>
+        prevReviews.map(review =>
+          review._id === reviewId 
+            ? { ...review, ...editReviewData }
+            : review
+        )
+      );
+      
+      setEditingReview(null);
+      Alert.alert("Success", "Review updated successfully!");
+    } catch (error: any) {
+      console.error("Error updating review:", error);
+      Alert.alert("Error", "Failed to update review. Please try again.");
+    }
+  };
+
+  const handleDeleteReview = (reviewId: string) => {
+    Alert.alert(
+      "Delete Review",
+      "Are you sure you want to delete this review?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}`;
+              await axios.delete(url);
+              
+              setReviews(prevReviews => 
+                prevReviews.filter(review => review._id !== reviewId)
+              );
+              
+              Alert.alert("Success", "Review deleted successfully!");
+            } catch (error: any) {
+              console.error("Error deleting review:", error);
+              Alert.alert("Error", "Failed to delete review. Please try again.");
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  // New edit comment functionality
+  const handleEditComment = (reviewId: string, commentId: string, currentText: string) => {
+    setEditingComment({ reviewId, commentId });
+    setEditCommentText(currentText);
+  };
+
+  const handleSaveComment = async () => {
+    if (!editingComment) return;
     
-    // Debug logging
-    console.log('Rendering card for:', item.title, 'Images:', item.images?.length || 0);
+    try {
+      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${editingComment.reviewId}/comment/${editingComment.commentId}`;
+      await axios.put(url, { text: editCommentText });
+      
+      setReviews(prevReviews =>
+        prevReviews.map(review =>
+          review._id === editingComment.reviewId
+            ? {
+                ...review,
+                comments: review.comments?.map(comment =>
+                  comment._id === editingComment.commentId
+                    ? { ...comment, text: editCommentText }
+                    : comment
+                ) || []
+              }
+            : review
+        )
+      );
+      
+      setEditingComment(null);
+      setEditCommentText("");
+      Alert.alert("Success", "Comment updated successfully!");
+    } catch (error: any) {
+      console.error("Error updating comment:", error);
+      Alert.alert("Error", "Failed to update comment. Please try again.");
+    }
+  };
+
+  const handleDeleteComment = (reviewId: string, commentId: string) => {
+    Alert.alert(
+      "Delete Comment",
+      "Are you sure you want to delete this comment?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/comment/${commentId}`;
+              await axios.delete(url);
+              
+              setReviews(prevReviews =>
+                prevReviews.map(review =>
+                  review._id === reviewId
+                    ? {
+                        ...review,
+                        comments: review.comments?.filter(comment => comment._id !== commentId) || []
+                      }
+                    : review
+                )
+              );
+              
+              Alert.alert("Success", "Comment deleted successfully!");
+            } catch (error: any) {
+              console.error("Error deleting comment:", error);
+              Alert.alert("Error", "Failed to delete comment. Please try again.");
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const renderGridItem = ({ item }: { item: Review }) => {
+    const cardWidth = isSmallScreen 
+      ? width - 32
+      : isLargeScreen 
+        ? (width - 84) / 3
+        : (width - 52) / 2;
+    
+    const isEditing = editingReview === item._id;
     
     return (
       <View style={styles.gridItem}>
         <View style={styles.imageContainer}>
           {item.images && item.images.length > 0 ? (
             item.images.length === 1 ? (
-              // Single image - simple display
               <Image 
                 source={{ uri: item.images[0] }} 
                 style={styles.reviewImage}
@@ -198,7 +334,6 @@ const ListReviews: React.FC = () => {
                 resizeMode="cover"
               />
             ) : (
-              // Multiple images - carousel
               <View style={styles.imageGallery}>
                 <FlatList
                   data={item.images.filter(img => img && img.trim() !== '')}
@@ -228,10 +363,7 @@ const ListReviews: React.FC = () => {
                 />
                 <View style={styles.imageIndicators}>
                   {item.images.filter(img => img && img.trim() !== '').map((_, index) => (
-                    <View
-                      key={index}
-                      style={styles.indicator}
-                    />
+                    <View key={index} style={styles.indicator} />
                   ))}
                 </View>
               </View>
@@ -247,54 +379,106 @@ const ListReviews: React.FC = () => {
             </View>
           )}
         </View>
+        
         <View style={styles.contentContainer}>
-          <Text style={styles.labelText}>Title:</Text>
-          <Text style={styles.gridTitle}>{item.title}</Text>
-          <Text style={styles.labelText}>Author:</Text>
-          <Text style={styles.gridAuthor}>
-            {item.userId?.username || item.author || "Unknown Author"}
-          </Text>
-          <Text style={styles.labelText}>Genre:</Text>
-          <Text style={styles.genreTag}>{item.genre}</Text>
-          {(item.createdAt || item.updatedAt) && (
+          {isEditing ? (
+            // Edit form for review
+            <View style={styles.editForm}>
+              <Text style={styles.labelText}>Title:</Text>
+              <TextInput
+                style={styles.editInput}
+                value={editReviewData.title}
+                onChangeText={(text) => setEditReviewData(prev => ({ ...prev, title: text }))}
+                placeholder="Review title"
+              />
+              
+              <Text style={styles.labelText}>Author:</Text>
+              <TextInput
+                style={styles.editInput}
+                value={editReviewData.author}
+                onChangeText={(text) => setEditReviewData(prev => ({ ...prev, author: text }))}
+                placeholder="Book author"
+              />
+              
+              <Text style={styles.labelText}>Genre:</Text>
+              <TextInput
+                style={styles.editInput}
+                value={editReviewData.genre}
+                onChangeText={(text) => setEditReviewData(prev => ({ ...prev, genre: text }))}
+                placeholder="Book genre"
+              />
+              
+              <Text style={styles.labelText}>Review:</Text>
+              <TextInput
+                style={[styles.editInput, styles.multilineInput]}
+                value={editReviewData.text}
+                onChangeText={(text) => setEditReviewData(prev => ({ ...prev, text: text }))}
+                placeholder="Your review"
+                multiline
+                numberOfLines={4}
+              />
+              
+              <View style={styles.editActions}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setEditingReview(null)}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={() => handleSaveReview(item._id)}
+                >
+                  <Text style={styles.submitButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            // Normal review display
             <>
-              <Text style={styles.labelText}>Date:</Text>
-              <Text style={styles.dateText}>
-                {new Date(item.createdAt || item.updatedAt || '').toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
+              <Text style={styles.labelText}>Title:</Text>
+              <Text style={styles.gridTitle}>{item.title}</Text>
+              <Text style={styles.labelText}>Author:</Text>
+              <Text style={styles.gridAuthor}>
+                {item.userId?.username || item.author || "Unknown Author"}
+              </Text>
+              <Text style={styles.labelText}>Genre:</Text>
+              <Text style={styles.genreTag}>{item.genre}</Text>
+              {(item.createdAt || item.updatedAt) && (
+                <>
+                  <Text style={styles.labelText}>Date:</Text>
+                  <Text style={styles.dateText}>
+                    {new Date(item.createdAt || item.updatedAt || '').toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </Text>
+                </>
+              )}
+              <Text style={styles.labelText}>Review:</Text>
+              <Text style={styles.gridText} numberOfLines={1}>
+                {item.text}
               </Text>
             </>
           )}
-          <Text style={styles.labelText}>Review:</Text>
-          <Text style={styles.gridText} numberOfLines={1}>
-            {item.text}
-          </Text>
         </View>
+        
         <View style={styles.actionBar}>
-          {/* Like Button */}
           <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: '#f0f0f0' }]}
-            onPress={() => {
-              console.log("Like button pressed for review:", item._id);
-              console.log("Current like count:", item.like);
-              handleLikeReview(item._id);
-            }}
+            onPress={() => handleLikeReview(item._id)}
             activeOpacity={0.7}
           >
             <Text style={styles.actionIcon}>👍</Text>
             <Text style={styles.actionCount}>{item.like || 0}</Text>
           </TouchableOpacity>
 
-          {/* Comment Button */}
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => {
-              console.log("Comment button pressed for review:", item._id);
               setExpandedComments((prev) => ({
                 ...prev,
                 [item._id]: !expandedComments[item._id],
@@ -306,11 +490,9 @@ const ListReviews: React.FC = () => {
             <Text style={styles.actionCount}>{item.comments?.length || 0}</Text>
           </TouchableOpacity>
 
-          {/* Add Comment Button */}
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => {
-              console.log("Add comment button pressed for review:", item._id);
               setShowCommentForm(prev => ({
                 ...prev,
                 [item._id]: !showCommentForm[item._id]
@@ -320,6 +502,26 @@ const ListReviews: React.FC = () => {
           >
             <Text style={styles.actionIcon}>✍️</Text>
             <Text style={styles.actionText}>Add</Text>
+          </TouchableOpacity>
+
+          {/* Edit Review Button */}
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleEditReview(item)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.actionIcon}>✏️</Text>
+            <Text style={styles.actionText}>Edit</Text>
+          </TouchableOpacity>
+
+          {/* Delete Review Button */}
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#ffebee' }]}
+            onPress={() => handleDeleteReview(item._id)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.actionIcon}>🗑️</Text>
+            <Text style={[styles.actionText, { color: '#d32f2f' }]}>Delete</Text>
           </TouchableOpacity>
         </View>
 
@@ -365,16 +567,65 @@ const ListReviews: React.FC = () => {
         {expandedComments[item._id] &&
           item.comments?.map((comment) => (
             <View key={comment._id} style={styles.commentContainer}>
-              <Text style={styles.commentText}>{comment.text}</Text>
-              <View style={styles.commentActions}>
-                <Text style={styles.commentLikes}>👍 {comment.likes}</Text>
-                <TouchableOpacity
-                  style={styles.commentLikeButton}
-                  onPress={() => handleLikeComment(item._id, comment._id)}
-                >
-                  <Text style={styles.commentLikeText}>Like</Text>
-                </TouchableOpacity>
-              </View>
+              {editingComment?.commentId === comment._id ? (
+                // Edit comment form
+                <View style={styles.editCommentForm}>
+                  <TextInput
+                    style={styles.commentInput}
+                    value={editCommentText}
+                    onChangeText={setEditCommentText}
+                    multiline
+                    numberOfLines={3}
+                  />
+                  <View style={styles.commentFormActions}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={() => {
+                        setEditingComment(null);
+                        setEditCommentText("");
+                      }}
+                    >
+                      <Text style={styles.cancelButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.submitButton}
+                      onPress={handleSaveComment}
+                    >
+                      <Text style={styles.submitButtonText}>Save</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : (
+                // Normal comment display
+                <>
+                  <Text style={styles.commentText}>{comment.text}</Text>
+                  <View style={styles.commentActions}>
+                    <View style={styles.commentLeftActions}>
+                      <Text style={styles.commentLikes}>👍 {comment.likes}</Text>
+                      <TouchableOpacity
+                        style={styles.commentLikeButton}
+                        onPress={() => handleLikeComment(item._id, comment._id)}
+                      >
+                        <Text style={styles.commentLikeText}>Like</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={styles.commentRightActions}>
+                      <TouchableOpacity
+                        style={styles.commentEditButton}
+                        onPress={() => handleEditComment(item._id, comment._id, comment.text)}
+                      >
+                        <Text style={styles.commentEditText}>Edit</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.commentDeleteButton}
+                        onPress={() => handleDeleteComment(item._id, comment._id)}
+                      >
+                        <Text style={styles.commentDeleteText}>Delete</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </>
+              )}
             </View>
           ))}
       </View>
@@ -394,7 +645,7 @@ const ListReviews: React.FC = () => {
         renderItem={renderGridItem}
         keyExtractor={(item) => item._id}
         numColumns={numColumns}
-        key={numColumns} // Force re-render when columns change
+        key={numColumns}
         contentContainerStyle={styles.gridContainer}
         columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
@@ -407,6 +658,7 @@ const ListReviews: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  // ...existing styles...
   emptyText: {
     color: "#fff",
   },
@@ -443,10 +695,10 @@ const styles = StyleSheet.create({
     elevation: 8,
     overflow: "hidden",
     width: isSmallScreen 
-      ? width - 32 // Single column: full width minus margins
+      ? width - 32
       : isLargeScreen 
-        ? (width - 84) / 3 // Three columns
-        : (width - 52) / 2, // Two columns
+        ? (width - 84) / 3
+        : (width - 52) / 2,
   },
   imageContainer: {
     position: "relative",
@@ -473,8 +725,8 @@ const styles = StyleSheet.create({
   },
   reviewImage: {
     width: "100%",
-    height: 150, // Fixed height for consistency
-    resizeMode: "contain",
+    height: 350,
+    resizeMode: "contain", // Changed from "cover" to "contain"
     backgroundColor: "#f8f8f8",
   },
   imageIndicators: {
@@ -509,7 +761,7 @@ const styles = StyleSheet.create({
   },
   placeholderImage: {
     width: "100%",
-    height: 120, // Fixed height only for placeholder
+    height: 120,
     backgroundColor: "#f0f0f0",
     justifyContent: "center",
     alignItems: "center",
@@ -520,7 +772,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 6,
-    minHeight: 60, // Minimal height for text content
+    minHeight: 60,
   },
   labelText: {
     fontSize: 9,
@@ -574,32 +826,65 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#f0f0f0",
     backgroundColor: "#fafafa",
+    flexWrap: "wrap",
   },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
     borderRadius: 12,
     backgroundColor: "transparent",
-    minWidth: 50,
-    minHeight: 36,
+    minWidth: 40,
+    minHeight: 32,
     justifyContent: "center",
+    margin: 2,
   },
   actionIcon: {
-    fontSize: 14,
+    fontSize: 12,
     marginRight: 2,
   },
   actionCount: {
-    fontSize: 10,
-    color: "#666",
-    fontWeight: "500",
-  },
-  actionText: {
     fontSize: 9,
     color: "#666",
     fontWeight: "500",
   },
+  actionText: {
+    fontSize: 8,
+    color: "#666",
+    fontWeight: "500",
+  },
+  
+  // Edit form styles
+  editForm: {
+    padding: 8,
+  },
+  editInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 6,
+    padding: 8,
+    backgroundColor: "#fff",
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  multilineInput: {
+    minHeight: 60,
+    textAlignVertical: "top",
+  },
+  editActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 8,
+    marginTop: 8,
+  },
+  editCommentForm: {
+    backgroundColor: "#f9f9f9",
+    padding: 8,
+    borderRadius: 6,
+  },
+  
+  // Comment styles
   commentForm: {
     margin: 8,
     padding: 12,
@@ -666,6 +951,16 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  commentLeftActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  commentRightActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   commentLikes: {
     fontSize: 10,
     color: "#666",
@@ -680,6 +975,28 @@ const styles = StyleSheet.create({
   commentLikeText: {
     fontSize: 10,
     color: "#007AFF",
+    fontWeight: "500",
+  },
+  commentEditButton: {
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 6,
+    backgroundColor: "#e3f2fd",
+  },
+  commentEditText: {
+    fontSize: 10,
+    color: "#1976d2",
+    fontWeight: "500",
+  },
+  commentDeleteButton: {
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 6,
+    backgroundColor: "#ffebee",
+  },
+  commentDeleteText: {
+    fontSize: 10,
+    color: "#d32f2f",
     fontWeight: "500",
   },
   comment: {
