@@ -326,6 +326,7 @@ const handleDeleteComment = (reviewId: string, commentId: string) => {
     ]
   );
 };
+
   
   const renderGridItem = ({ item }: { item: Review }) => {
     const cardWidth = isSmallScreen 
