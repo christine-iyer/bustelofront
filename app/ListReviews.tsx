@@ -207,34 +207,7 @@ const ListReviews: React.FC = () => {
     }
   };
 
-  const handleDeleteReview = (reviewId: string) => {
-    Alert.alert(
-      "Delete Review",
-      "Are you sure you want to delete this review?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Delete", 
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}`;
-              await axios.delete(url);
-              
-              setReviews(prevReviews => 
-                prevReviews.filter(review => review._id !== reviewId)
-              );
-              
-              Alert.alert("Success", "Review deleted successfully!");
-            } catch (error: any) {
-              console.error("Error deleting review:", error);
-              Alert.alert("Error", "Failed to delete review. Please try again.");
-            }
-          }
-        }
-      ]
-    );
-  };
+
 
   // New edit comment functionality
   const handleEditComment = (reviewId: string, commentId: string, currentText: string) => {
@@ -273,8 +246,44 @@ const ListReviews: React.FC = () => {
     Alert.alert("Error", "Failed to update comment. Please try again.");
   }
 };
+const handleDeleteReview = (reviewId: string) => {
+  Alert.alert(
+    "Delete Review",
+    "Are you sure you want to delete this review?",
+    [
+      { text: "Cancel", style: "cancel" },
+      { 
+        text: "Delete", 
+        style: "destructive",
+        onPress: async () => {
+          try {
+            console.log("🗑️ Attempting to delete review:", reviewId);
+            const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}`;
+            console.log("📡 DELETE request URL:", url);
+            
+            const response = await axios.delete(url);
+            console.log("✅ Delete review response:", response.data);
+            console.log("📊 Response status:", response.status);
+            
+            setReviews(prevReviews => 
+              prevReviews.filter(review => review._id !== reviewId)
+            );
+            
+            Alert.alert("Success", "Review deleted successfully!");
+          } catch (error: any) {
+            console.error("❌ Error deleting review:", error);
+            console.error("📋 Error details:", error.response?.data);
+            console.error("🔢 Error status:", error.response?.status);
+            console.error("🌐 Full error response:", error.response);
+            Alert.alert("Error", `Failed to delete review: ${error.response?.data?.message || error.message}`);
+          }
+        }
+      }
+    ]
+  );
+};
 
-  const handleDeleteComment = (reviewId: string, commentId: string) => {
+const handleDeleteComment = (reviewId: string, commentId: string) => {
   Alert.alert(
     "Delete Comment",
     "Are you sure you want to delete this comment?",
@@ -285,9 +294,13 @@ const ListReviews: React.FC = () => {
         style: "destructive",
         onPress: async () => {
           try {
-            // Fixed URL structure - this should work now
+            console.log("🗑️ Attempting to delete comment:", commentId, "from review:", reviewId);
             const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/comment/${commentId}`;
-            await axios.delete(url);
+            console.log("📡 DELETE request URL:", url);
+            
+            const response = await axios.delete(url);
+            console.log("✅ Delete comment response:", response.data);
+            console.log("📊 Response status:", response.status);
             
             setReviews(prevReviews =>
               prevReviews.map(review =>
@@ -302,14 +315,18 @@ const ListReviews: React.FC = () => {
             
             Alert.alert("Success", "Comment deleted successfully!");
           } catch (error: any) {
-            console.error("Error deleting comment:", error);
-            Alert.alert("Error", "Failed to delete comment. Please try again.");
+            console.error("❌ Error deleting comment:", error);
+            console.error("📋 Error details:", error.response?.data);
+            console.error("🔢 Error status:", error.response?.status);
+            console.error("🌐 Full error response:", error.response);
+            Alert.alert("Error", `Failed to delete comment: ${error.response?.data?.message || error.message}`);
           }
         }
       }
     ]
   );
 };
+  
   const renderGridItem = ({ item }: { item: Review }) => {
     const cardWidth = isSmallScreen 
       ? width - 32
