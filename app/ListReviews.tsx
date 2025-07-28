@@ -55,14 +55,14 @@ const ListReviews: React.FC = () => {
   const [editingComment, setEditingComment] = useState<{ reviewId: string; commentId: string } | null>(null);
   const [editReviewData, setEditReviewData] = useState<{ title: string; text: string; author: string; genre: string }>({ title: "", text: "", author: "", genre: "" });
   const [editCommentText, setEditCommentText] = useState<string>("");
-  
+
   // Add confirmation dialog state
   const [confirmDelete, setConfirmDelete] = useState<{
     type: 'review' | 'comment';
     id: string;
     reviewId?: string;
   } | null>(null);
-  
+
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList>(null);
 
@@ -272,12 +272,12 @@ const ListReviews: React.FC = () => {
 
   const confirmDeletion = async () => {
     if (!confirmDelete) return;
-    
+
     try {
       if (confirmDelete.type === 'review') {
         console.log("🚀 User confirmed deletion for review:", confirmDelete.id);
         console.log("🔄 Starting deletion process...");
-        
+
         const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${confirmDelete.id}`;
         console.log("📡 DELETE request URL:", url);
 
@@ -295,10 +295,10 @@ const ListReviews: React.FC = () => {
           });
           Alert.alert("Success", "Review deleted successfully!");
         }
-        
+
       } else if (confirmDelete.type === 'comment') {
         console.log("🚀 User confirmed deletion for comment:", confirmDelete.id);
-        
+
         const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${confirmDelete.reviewId}/comment/${confirmDelete.id}`;
         console.log("📡 DELETE request URL:", url);
 
@@ -321,15 +321,15 @@ const ListReviews: React.FC = () => {
           Alert.alert("Success", "Comment deleted successfully!");
         }
       }
-      
+
     } catch (error: any) {
       console.error("❌ Error during deletion:", error);
       console.error("📋 Error details:", error.response?.data);
-      
-      const errorMessage = error.response?.data?.message || 
-                         error.response?.statusText || 
-                         error.message || 
-                         "Unknown error occurred";
+
+      const errorMessage = error.response?.data?.message ||
+        error.response?.statusText ||
+        error.message ||
+        "Unknown error occurred";
       Alert.alert("Error", `Failed to delete: ${errorMessage}`);
     } finally {
       setConfirmDelete(null);
@@ -337,18 +337,60 @@ const ListReviews: React.FC = () => {
   };
 
   const renderGridItem = ({ item }: { item: Review }) => {
-    const cardWidth = isSmallScreen 
+    const cardWidth = isSmallScreen
       ? width - 32
-      : isLargeScreen 
+      : isLargeScreen
         ? (width - 84) / 3
         : (width - 52) / 2;
-    
+
     const isEditing = editingReview === item._id;
-    
+
+    const generateLines = () => {
+
+  const lines = [];
+  const lineSpacing = 24; // Space between lines
+  const startY = 20; // Start higher up to cover more area
+  const actionBarHeight = 60; // Height of the action bar
+  const cardHeight = 500; // Increase card height to accommodate more content
+  const endY = cardHeight - actionBarHeight - 20; // Stop before action bar
+  const numLines = Math.floor((endY - startY) / lineSpacing);
+
+  for (let i = 0; i < numLines; i++) {
+    const lineY = startY + (i * lineSpacing);
+    // Only add line if it's within the content area
+    if (lineY < endY) {
+      lines.push(
+        <View
+          key={i}
+          style={[
+            styles.notebookLine,
+            { 
+              top: lineY,
+              left: 45, // Start after the red margin and holes
+              right: 15, // Leave some margin on the right
+              position: 'absolute',
+              height: 1,
+              backgroundColor: 'rgba(173, 216, 230, 0.4)',
+            }
+          ]}
+        />
+      );
+    }
+  }
+  return lines;};
     return (
       <View style={styles.gridItem}>
-        <View style={styles.notebookLines} />
-        
+        <View style={styles.notebookPaper}>
+          <View style={styles.holeContainer}>
+            <View style={styles.hole} />
+            <View style={styles.hole} />
+            <View style={styles.hole} />
+          </View>
+          <View style={styles.notebookLines}>
+            {generateLines()}
+          </View>
+        </View>
+
         <View style={styles.imageContainer}>
           {item.images && item.images.length > 0 ? (
             <>
@@ -356,11 +398,11 @@ const ListReviews: React.FC = () => {
               <View style={[styles.photoTape, styles.tapeTopRight]} />
               <View style={[styles.photoTape, styles.tapeBottomLeft]} />
               <View style={[styles.photoTape, styles.tapeBottomRight]} />
-              
+
               {item.images.length === 1 ? (
                 <View style={styles.imageGallery}>
-                  <Image 
-                    source={{ uri: item.images[0] }} 
+                  <Image
+                    source={{ uri: item.images[0] }}
                     style={styles.reviewImage}
                     onError={(error) => {
                       console.log('Single image load error:', error.nativeEvent.error);
@@ -383,8 +425,8 @@ const ListReviews: React.FC = () => {
                     keyExtractor={(image, index) => `${item._id}-${index}`}
                     renderItem={({ item: imageUri }) => (
                       <View style={[styles.imageSlide, { width: cardWidth * 0.85 }]}>
-                        <Image 
-                          source={{ uri: imageUri }} 
+                        <Image
+                          source={{ uri: imageUri }}
                           style={styles.reviewImage}
                           onError={(error) => {
                             console.log('Carousel image load error:', error.nativeEvent.error);
@@ -417,7 +459,7 @@ const ListReviews: React.FC = () => {
             </View>
           )}
         </View>
-        
+
         <View style={styles.contentContainer}>
           {isEditing ? (
             <View style={styles.editForm}>
@@ -428,7 +470,7 @@ const ListReviews: React.FC = () => {
                 onChangeText={(text) => setEditReviewData(prev => ({ ...prev, title: text }))}
                 placeholder="Review title"
               />
-              
+
               <Text style={styles.labelText}>Author:</Text>
               <TextInput
                 style={styles.editInput}
@@ -436,7 +478,7 @@ const ListReviews: React.FC = () => {
                 onChangeText={(text) => setEditReviewData(prev => ({ ...prev, author: text }))}
                 placeholder="Book author"
               />
-              
+
               <Text style={styles.labelText}>Genre:</Text>
               <TextInput
                 style={styles.editInput}
@@ -444,7 +486,7 @@ const ListReviews: React.FC = () => {
                 onChangeText={(text) => setEditReviewData(prev => ({ ...prev, genre: text }))}
                 placeholder="Book genre"
               />
-              
+
               <Text style={styles.labelText}>Review:</Text>
               <TextInput
                 style={[styles.editInput, styles.multilineInput]}
@@ -454,7 +496,7 @@ const ListReviews: React.FC = () => {
                 multiline
                 numberOfLines={4}
               />
-              
+
               <View style={styles.editActions}>
                 <TouchableOpacity
                   style={styles.cancelButton}
@@ -476,7 +518,7 @@ const ListReviews: React.FC = () => {
               <Text style={styles.gridAuthor}>
                 By {item.author || item.userId?.username || "Unknown Author"}
               </Text>
-              
+
               {(item.createdAt || item.updatedAt) && (
                 <Text style={styles.dateText}>
                   {new Date(item.createdAt || item.updatedAt || '').toLocaleDateString('en-US', {
@@ -488,18 +530,18 @@ const ListReviews: React.FC = () => {
                   })}
                 </Text>
               )}
-              
+
               <Text style={styles.gridText}>
                 {item.text}
-              </Text>      
+              </Text>
               <Text style={styles.gridText}>{item.genre}</Text>
             </>
           )}
         </View>
-        
+
         <View style={styles.actionBar}>
           <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: '#f0f0f0' }]}
+            style={[styles.actionButton, { backgroundColor: '#f0f0f0', zIndex: 10 }]}
             onPress={() => handleLikeReview(item._id)}
             activeOpacity={0.7}
           >
@@ -560,7 +602,7 @@ const ListReviews: React.FC = () => {
               style={styles.commentInput}
               placeholder="Write your comment..."
               value={commentText[item._id] || ""}
-              onChangeText={(text) => 
+              onChangeText={(text) =>
                 setCommentText(prev => ({ ...prev, [item._id]: text }))
               }
               multiline
@@ -678,7 +720,7 @@ const ListReviews: React.FC = () => {
           <Text style={styles.emptyText}>No reviews found.</Text>
         }
       />
-      
+
       {/* Custom Confirmation Dialog */}
       {confirmDelete && (
         <View style={styles.confirmationOverlay}>

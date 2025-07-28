@@ -40,41 +40,8 @@ export const listReviewsStyles = StyleSheet.create({
   row: {
     justifyContent: "space-around",
   },
-  gridItem: {
-    flex: 1,
-    margin: isSmallScreen ? 8 : 12,
-    backgroundColor: "#fefefe", // Notebook paper white
-    borderRadius: 0, // Sharp corners like paper
-    shadowColor: "#000",
-    shadowOffset: { width: 2, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 8,
-    overflow: "visible", // Allow tape to show outside
-    width: isSmallScreen 
-      ? width - 32
-      : isLargeScreen 
-        ? (width - 84) / 3
-        : (width - 52) / 2,
-    // Add notebook lines effect
-    borderLeftWidth: 2,
-    borderLeftColor: "#ff6b6b", // Red margin line
-    paddingLeft: 15,
-    position: "relative",
-  },
   
-  // Notebook lines overlay
-  notebookLines: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "transparent",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(173, 216, 230, 0.3)", // Light blue lines
-  },
-  
+ 
   imageContainer: {
     position: "relative",
     width: "100%",
@@ -217,9 +184,11 @@ export const listReviewsStyles = StyleSheet.create({
   },
   
   contentContainer: {
-    padding: 12,
-    minHeight: 60,
-    position: "relative",
+  padding: 12,
+  minHeight: 60,
+  position: "relative",
+  backgroundColor: 'transparent', // Make sure it's transparent so lines show through
+  zIndex: 2,
   },
   
   labelText: {
@@ -233,22 +202,17 @@ export const listReviewsStyles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   
-  gridTitle: {
-    fontSize: isSmallScreen ? 18 : 16,
-    fontWeight: "bold",
-    marginBottom: 6,
-    color: "#2F4F4F", // Dark slate gray like pen ink
-    lineHeight: isSmallScreen ? 22 : 18,
-    fontFamily: "Georgia",
+  gridTitle: {  fontSize: isSmallScreen ? 20 : 18,
+  fontWeight: "bold",
+  marginBottom: 4,
+  color: "#2F4F4F",
+  lineHeight: isSmallScreen ? 24 : 22,
+  fontFamily: "Georgia",
+  letterSpacing: 1,
+  backgroundColor: 'transparent', // Ensure transparency
+  zIndex: 3, // Higher z-index
   },
-  
-  gridAuthor: {
-    fontSize: 13,
-    fontStyle: "italic",
-    marginBottom: 6,
-    color: "#696969",
-    fontFamily: "Georgia",
-  },
+
   
   genreTag: {
     fontSize: 11,
@@ -267,30 +231,26 @@ export const listReviewsStyles = StyleSheet.create({
 gridText: {
   fontSize: isSmallScreen ? 14 : 12,
   color: "#2F4F4F",
-  lineHeight: isSmallScreen ? 20 : 18, // Increased line height for better readability
+  lineHeight: isSmallScreen ? 20 : 18,
   marginBottom: 8,
   fontFamily: "Georgia",
   fontStyle: "italic",
-  // Removed numberOfLines restriction to show full text
-},
-gridTitle: {
-  fontSize: isSmallScreen ? 20 : 18, // Slightly larger for prominence
-  fontWeight: "bold",
-  marginBottom: 4, // Reduced spacing
-  color: "#2F4F4F", // Dark slate gray like pen ink
-  lineHeight: isSmallScreen ? 24 : 22,
-  fontFamily: "Georgia",
-  letterSpacing: 1, // Add letter spacing for capitalized text
+  backgroundColor: 'transparent', // Ensure transparency
+  zIndex: 3, // Higher z-index
 },
 
-// Update gridAuthor for the "By" format:
 gridAuthor: {
   fontSize: 14,
   fontStyle: "italic",
   marginBottom: 8,
   color: "#696969",
   fontFamily: "Georgia",
+  backgroundColor: 'transparent', // Ensure transparency
+  zIndex: 3, // Higher z-index
 },
+
+
+
   
 dateText: {
   fontSize: 11,
@@ -645,5 +605,86 @@ confirmationCancelText: {
 confirmationDeleteText: {
   color: 'white',
   fontWeight: '500',
+},
+// Add these new styles to your listReviewStyles.ts
+notebookPaper: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'transparent',
+  zIndex: 1,
+},
+
+// Horizontal lines across the paper
+notebookLines: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'transparent',
+  zIndex: 1,
+},
+
+// Individual line style
+notebookLine: {
+  position: 'absolute',
+  left: 45, // Start after the holes and margin
+  right: 15,
+  height: 1,
+  backgroundColor: 'rgba(173, 216, 230, 0.4)', // Light blue lines
+},
+
+// Three-hole punch effect
+holeContainer: {
+  position: 'absolute',
+  left: 12,
+  top: 0,
+  bottom: 0,
+  width: 16,
+  justifyContent: 'space-around',
+  alignItems: 'center',
+  paddingVertical: 30,
+},
+
+hole: {
+  width: 12,
+  height: 12,
+  borderRadius: 6,
+  backgroundColor: '#f5f3f0', // Same as container background
+  borderWidth: 1,
+  borderColor: 'rgba(0, 0, 0, 0.1)',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.2,
+  shadowRadius: 2,
+  elevation: 1,
+},
+
+
+// Update your existing gridItem style
+gridItem: {
+  flex: 1,
+  margin: isSmallScreen ? 8 : 12,
+  backgroundColor: "#fefefe",
+  borderRadius: 0,
+  shadowColor: "#000",
+  shadowOffset: { width: 2, height: 4 },
+  shadowOpacity: 0.15,
+  shadowRadius: 8,
+  elevation: 8,
+  overflow: "hidden",
+  width: isSmallScreen 
+    ? width - 32
+    : isLargeScreen 
+      ? (width - 84) / 3
+      : (width - 52) / 2,
+  borderLeftWidth: 2,
+  borderLeftColor: "#ff6b6b",
+  paddingLeft: 45,
+  position: "relative",
+  minHeight: 500, // Ensure enough height for the effect
 },
 });
