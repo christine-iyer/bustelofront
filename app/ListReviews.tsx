@@ -345,50 +345,13 @@ const ListReviews: React.FC = () => {
 
     const isEditing = editingReview === item._id;
 
-    const generateLines = () => {
-
-  const lines = [];
-  const lineSpacing = 24; // Space between lines
-  const startY = 20; // Start higher up to cover more area
-  const actionBarHeight = 60; // Height of the action bar
-  const cardHeight = 500; // Increase card height to accommodate more content
-  const endY = cardHeight - actionBarHeight - 20; // Stop before action bar
-  const numLines = Math.floor((endY - startY) / lineSpacing);
-
-  for (let i = 0; i < numLines; i++) {
-    const lineY = startY + (i * lineSpacing);
-    // Only add line if it's within the content area
-    if (lineY < endY) {
-      lines.push(
-        <View
-          key={i}
-          style={[
-            styles.notebookLine,
-            { 
-              top: lineY,
-              left: 45, // Start after the red margin and holes
-              right: 15, // Leave some margin on the right
-              position: 'absolute',
-              height: 1,
-              backgroundColor: 'rgba(173, 216, 230, 0.4)',
-            }
-          ]}
-        />
-      );
-    }
-  }
-  return lines;};
     return (
       <View style={styles.gridItem}>
-        <View style={styles.notebookPaper}>
-          <View style={styles.holeContainer}>
-            <View style={styles.hole} />
-            <View style={styles.hole} />
-            <View style={styles.hole} />
-          </View>
-          <View style={styles.notebookLines}>
-            {generateLines()}
-          </View>
+        {/* Three holes for notebook effect (keeping these if you want) */}
+        <View style={styles.holeContainer}>
+          <View style={styles.hole} />
+          <View style={styles.hole} />
+          <View style={styles.hole} />
         </View>
 
         <View style={styles.imageContainer}>
@@ -541,7 +504,7 @@ const ListReviews: React.FC = () => {
 
         <View style={styles.actionBar}>
           <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: '#f0f0f0', zIndex: 10 }]}
+            style={[styles.actionButton, { backgroundColor: '#f0f0f0' }]}
             onPress={() => handleLikeReview(item._id)}
             activeOpacity={0.7}
           >
