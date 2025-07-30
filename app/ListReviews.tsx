@@ -55,7 +55,7 @@ const ListReviews: React.FC = () => {
   const [editingComment, setEditingComment] = useState<{ reviewId: string; commentId: string } | null>(null);
   const [editReviewData, setEditReviewData] = useState<{ title: string; text: string; author: string; genre: string }>({ title: "", text: "", author: "", genre: "" });
   const [editCommentText, setEditCommentText] = useState<string>("");
-
+  const [expandedText, setExpandedText] = useState<{ [key: string]: boolean }>({});
   // Add confirmation dialog state
   const [confirmDelete, setConfirmDelete] = useState<{
     type: 'review' | 'comment';
@@ -155,6 +155,11 @@ const ListReviews: React.FC = () => {
     }
   };
 
+  const truncateText = (text: string, maxLength: number = 150) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + '...';
+  };
   const handleLikeComment = async (id: string, commentId: string) => {
     console.log("Liking comment:", commentId, "for review:", id);
 
@@ -494,9 +499,29 @@ const ListReviews: React.FC = () => {
                 </Text>
               )}
 
-              <Text style={styles.gridText}>
-                {item.text}
-              </Text>
+              <View>
+                <Text style={styles.gridText}>
+                  {expandedText[item._id] ? item.text : truncateText(item.text, 150)}
+                </Text>
+
+                {/* Show More/Less button only if text is longer than limit */}
+                {item.text.length > 15 && (
+                  <TouchableOpacity
+                    style={styles.showMoreButton}
+                    onPress={() => {
+                      setExpandedText(prev => ({
+                        ...prev,
+                        [item._id]: !prev[item._id]
+                      }));
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.showMoreText}>
+                      {expandedText[item._id] ? 'Show Less' : 'Show More'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
               <Text style={styles.gridText}>{item.genre}</Text>
             </>
           )}

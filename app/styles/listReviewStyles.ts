@@ -618,16 +618,23 @@ notebookPaper: {
 },
 
 // Horizontal lines across the paper
-notebookLines: {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: 'transparent',
-  zIndex: 1,
+showMoreButton: {
+  alignSelf: 'flex-start',
+  marginTop: 4,
+  paddingVertical: 4,
+  paddingHorizontal: 8,
+  borderRadius: 12,
+  backgroundColor: 'rgba(70, 130, 180, 0.1)',
+  borderWidth: 1,
+  borderColor: 'rgba(70, 130, 180, 0.3)',
 },
 
+showMoreText: {
+  fontSize: 11,
+  color: '#4682B4',
+  fontWeight: '600',
+  fontFamily: 'Georgia',
+},
 // Individual line style
 notebookLine: {
   position: 'absolute',
