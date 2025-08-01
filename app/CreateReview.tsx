@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity,  Alert, Image, ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
+import createReviewStyles from "./styles/CreateReviewStyles";
 import UploadImage from "./UploadImage";
+
 
 interface User {
   _id: string;
@@ -82,11 +84,11 @@ const CreateReview: React.FC = () => {
         )}
       </Picker>
 
-      <TextInput style={styles.input} placeholder="Required Text" value={title} onChangeText={setTitle} />
-      <TextInput style={styles.input} placeholder="Optional Text" value={author} onChangeText={setAuthor} />
-      <TextInput style={styles.input} placeholder="Optional Text" value={text} onChangeText={setText} />
-      <TextInput style={styles.input} placeholder="Optional Text" value={genre} onChangeText={setGenre} />
-      <TextInput style={styles.input} placeholder="Optional Text Rating (1-5)" keyboardType="numeric"
+      <TextInput style={styles.input} placeholder="Required Title" value={title} onChangeText={setTitle} />
+      <TextInput style={styles.input} placeholder="Optional Author" value={author} onChangeText={setAuthor} />
+      <TextInput style={styles.input} placeholder="Optional Review" value={text} onChangeText={setText} />
+      <TextInput style={styles.input} placeholder="Optional Genre" value={genre} onChangeText={setGenre} />
+      <TextInput style={styles.input} placeholder="Optional Rating (1-5)" keyboardType="numeric"
        value={rating ? rating.toString() : ""} onChangeText={(value) => setRating(parseInt(value) || 0)}/>
       {/* <Picker style={styles.input} selectedValue={genre} onValueChange={(itemValue) => setGenre(itemValue)}>
         <Picker.Item label="Select Genre" value="" />
@@ -124,11 +126,5 @@ const CreateReview: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  form: { padding: 16, backgroundColor: "#f9f9f9" },
-  input: { height: 40, borderColor: "#ccc", borderWidth: 1, marginBottom: 8, paddingHorizontal: 8, borderRadius: 4 },
-  button: { paddingVertical: 12, backgroundColor: "#007bff", borderRadius: 4, alignItems: "center" },
-  buttonText: { color: "#fff", fontWeight: "bold" },
-});
 
 export default CreateReview;
