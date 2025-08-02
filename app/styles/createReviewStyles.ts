@@ -7,14 +7,19 @@ export const isLargeScreen = width >= 1024;
 
 export const createReviewStyles = StyleSheet.create({
 button: {
-     backgroundColor: "yellow",
-     padding: 10,
-     borderRadius: 5,
-     alignItems: "center",
+     backgroundColor: "transparent",
+  padding: 0,
+  borderRadius: 0,
+  alignItems: "center",
+  elevation: 0,
+  shadowColor: "transparent",
 },
 buttonText: {
-     color: "#fff",
-     fontWeight: "bold",
+       color: "#4682B4", // or any link color you like
+  fontWeight: "bold",
+  textDecorationLine: "underline",
+  fontFamily: "Georgia",
+  fontSize: 15,
 },
 input: {
      height: 40,

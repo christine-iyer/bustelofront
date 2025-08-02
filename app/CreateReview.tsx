@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity,  Alert, Image, ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
-import createReviewStyles from "./styles/CreateReviewStyles";
+import { createReviewStyles } from "./styles/createReviewStyles";
 import UploadImage from "./UploadImage";
 
 
@@ -73,7 +73,7 @@ const CreateReview: React.FC = () => {
   };
 
   return (
-    <View style={styles.form}>
+    <View style={createReviewStyles.form}>
       <Text>Select User:</Text>
       <Picker selectedValue={selectedUser} onValueChange={(value) => setSelectedUser(value)}>
         <Picker.Item label="Select a user" value="" />
@@ -84,11 +84,11 @@ const CreateReview: React.FC = () => {
         )}
       </Picker>
 
-      <TextInput style={styles.input} placeholder="Required Title" value={title} onChangeText={setTitle} />
-      <TextInput style={styles.input} placeholder="Optional Author" value={author} onChangeText={setAuthor} />
-      <TextInput style={styles.input} placeholder="Optional Review" value={text} onChangeText={setText} />
-      <TextInput style={styles.input} placeholder="Optional Genre" value={genre} onChangeText={setGenre} />
-      <TextInput style={styles.input} placeholder="Optional Rating (1-5)" keyboardType="numeric"
+      <TextInput style={createReviewStyles.input} placeholder="Required Title" value={title} onChangeText={setTitle} />
+      <TextInput style={createReviewStyles.input} placeholder="Optional Author" value={author} onChangeText={setAuthor} />
+      <TextInput style={createReviewStyles.input} placeholder="Optional Review" value={text} onChangeText={setText} />
+      <TextInput style={createReviewStyles.input} placeholder="Optional Genre" value={genre} onChangeText={setGenre} />
+      <TextInput style={createReviewStyles.input} placeholder="Optional Rating (1-5)" keyboardType="numeric"
        value={rating ? rating.toString() : ""} onChangeText={(value) => setRating(parseInt(value) || 0)}/>
       {/* <Picker style={styles.input} selectedValue={genre} onValueChange={(itemValue) => setGenre(itemValue)}>
         <Picker.Item label="Select Genre" value="" />
@@ -119,8 +119,8 @@ const CreateReview: React.FC = () => {
       )}
 
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit your Details</Text>
+      <TouchableOpacity style={createReviewStyles.button} onPress={handleSubmit}>
+        <Text style={createReviewStyles.buttonText}>Submit your Details</Text>
       </TouchableOpacity>
     </View>
   );
