@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Stack, useRouter, Slot } from "expo-router";
+import { layoutNavStyles as layoutNavStyles } from "./styles/layoutNavStyles";
 
 export default function Layout() {
   const router = useRouter();
@@ -8,36 +9,36 @@ export default function Layout() {
   return (
     <View style={{ flex: 1 }}>
       {/* ✅ Navigation Bar */}
-      <View style={styles.navbar}>
+      <View style={layoutNavStyles.navbar}>
         <TouchableOpacity
-          style={styles.button}
+          style={layoutNavStyles.button}
           onPress={() => router.push("/")}
         >
-          <Text style={styles.buttonText}>Home</Text>
+          <Text style={layoutNavStyles.buttonText}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
+          style={layoutNavStyles.button}
           onPress={() => router.push("/CreateUser")}
         >
-          <Text style={styles.buttonText}>Create User</Text>
+          <Text style={layoutNavStyles.buttonText}>Create User</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
+          style={layoutNavStyles.button}
           onPress={() => router.push("/ListUsers")}
         >
-          <Text style={styles.buttonText}>Users</Text>
+          <Text style={layoutNavStyles.buttonText}>Users</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
+          style={layoutNavStyles.button}
           onPress={() => router.push("/CreateReview")}
         >
-          <Text style={styles.buttonText}>Create Review</Text>
+          <Text style={layoutNavStyles.buttonText}>Create Review</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
+          style={layoutNavStyles.button}
           onPress={() => router.push("/ListReviews")}
         >
-          <Text style={styles.buttonText}>List Reviews</Text>
+          <Text style={layoutNavStyles.buttonText}>List Reviews</Text>
         </TouchableOpacity>
       </View>
       <Stack screenOptions={{ headerShown: false }}>
@@ -47,25 +48,3 @@ export default function Layout() {
   );
 }
 
-const styles = StyleSheet.create({
-  navbar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 10,
-    backgroundColor: "#EB5B00",
-  },
-  button: {
-    flex: 1,
-    marginHorizontal: 5,
-    backgroundColor: "rgba(25, 255, 255, 0.8)",
-    borderRadius: 8,
-    padding: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonText: {
-    color: "rgba(0, 0, 0, 0.6)",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});

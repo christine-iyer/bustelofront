@@ -1,27 +1,19 @@
 import React from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 import { useRouter } from "expo-router";
+import { layoutNavStyles as layoutNavStyles } from "./styles/layoutNavStyles";
+
 
 const HomeScreen = () => {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Boostelo! Show us your flores</Text>
+    <View style={layoutNavStyles.container}>
+      <Text style={layoutNavStyles.title}>Welcome to Boostelo! Show us your flores</Text>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor:"green",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: { textAlign: "center", 
-    backgroundColor: "#EB5B00"
-  }
-});
+
 
 export default HomeScreen;
