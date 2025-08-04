@@ -42,7 +42,7 @@ buttonText: {
 },
 container: {
   flex: 1,
-  backgroundColor: "#fed1edff", // scrapbook paper yellow
+  backgroundColor: "rgba(208, 152, 164, 1)", // scrapbook paper yellow
   padding: 16,
 },
 title: {

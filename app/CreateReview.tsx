@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, TextInput, TouchableOpacity,  Alert, Image, ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
@@ -12,6 +12,7 @@ interface User {
 }
 
 const CreateReview: React.FC = () => {
+  const { user } = useAuthContext(); // user = { _id, username }
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [title, setTitle] = useState<string>("");
@@ -50,7 +51,8 @@ const CreateReview: React.FC = () => {
       const response = await axios.post(`https://franky-app-ix96j.ondigitalocean.app/api/review`, {
         userId: selectedUser,
         title,
-        author,
+        author: user.username,
+        userId: user._id, // Ensure userId is set correctly
         text,
         rating,
         genre,
