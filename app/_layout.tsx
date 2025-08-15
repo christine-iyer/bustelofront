@@ -2,11 +2,13 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Stack, useRouter, Slot } from "expo-router";
 import { layoutNavStyles as layoutNavStyles } from "./styles/layoutNavStyles";
+import { AuthProvider } from "./contexts/AuthContext"; // Add this import
 
 export default function Layout() {
   const router = useRouter();
 
   return (
+    <AuthProvider>
     <View style={{ flex: 1 }}>
       {/* ✅ Navigation Bar */}
       <View style={layoutNavStyles.navbar}>
@@ -45,6 +47,7 @@ export default function Layout() {
         <Slot />
       </Stack>
     </View>
+    </AuthProvider>
   );
 }
 

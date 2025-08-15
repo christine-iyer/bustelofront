@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity,  Alert, Image, ScrollView } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import axios from "axios";
 import { createReviewStyles } from "./styles/createReviewStyles";
 import UploadImage from "./UploadImage";
+import { useAuthContext } from "./contexts/AuthContext"; // Add this import
 
 
 interface User {
