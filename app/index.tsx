@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { layoutNavStyles } from "./styles/layoutNavStyles";
 import { useAuthContext } from "./contexts/AuthContext";
-import GoogleSignIn from "./utilities/GoogleSignIn";
+import GoogleSignIn from "./components/Auth/GoogleSignInButton";
 
 const HomeScreen = () => {
   const router = useRouter();
