@@ -1,13 +1,22 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { layoutNavStyles } from "./styles/layoutNavStyles";
 import { useAuthContext } from "./contexts/AuthContext";
-import GoogleSignIn from "./components/Auth/GoogleSignInButton";
+import GoogleSignInButton from "./components/Auth/GoogleSignInButton";
 
 const HomeScreen = () => {
   const router = useRouter();
-  const { user, logout } = useAuthContext();
+  const { user, logout, isLoading } = useAuthContext();
+
+  if (isLoading) {
+    return (
+      <View style={[layoutNavStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#4285F4" />
+        <Text style={{ marginTop: 16, fontSize: 16 }}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={layoutNavStyles.container}>
@@ -24,7 +33,9 @@ const HomeScreen = () => {
               style={styles.avatar}
             />
           )}
-          <Text style={styles.email}>{user.email}</Text>
+          {user.email && (
+            <Text style={styles.email}>{user.email}</Text>
+          )}
           <TouchableOpacity style={styles.logoutButton} onPress={logout}>
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
@@ -32,7 +43,7 @@ const HomeScreen = () => {
       ) : (
         <View style={styles.signInContainer}>
           <Text style={styles.subtitle}>Sign in to create and view reviews</Text>
-          <GoogleSignIn />
+          <GoogleSignInButton />
         </View>
       )}
     </View>
@@ -81,7 +92,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#666',
-    marginBottom: 16,
+    marginBottom: 24,
     textAlign: 'center',
   },
 });

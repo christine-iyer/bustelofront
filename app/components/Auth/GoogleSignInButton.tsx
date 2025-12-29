@@ -1,20 +1,26 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Linking, Platform } from 'react-native';
 import { Svg, Path } from 'react-native-svg';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3006';
+const BACKEND_URL = 'https://franky-app-ix96j.ondigitalocean.app';
 
 export default function GoogleSignInButton() {
   const handleGoogleSignIn = async () => {
     try {
-      // Use Linking API for React Native instead of window.location
-      const url = `${BACKEND_URL}/api/user/auth/google`;
-      const supported = await Linking.canOpenURL(url);
+      const authUrl = `${BACKEND_URL}/api/user/auth/google`;
       
-      if (supported) {
-        await Linking.openURL(url);
+      if (Platform.OS === 'web') {
+        // For web, use window.location
+        window.location.href = authUrl;
       } else {
-        Alert.alert('Error', `Cannot open URL: ${url}`);
+        // For mobile, use Linking API
+        const supported = await Linking.canOpenURL(authUrl);
+        
+        if (supported) {
+          await Linking.openURL(authUrl);
+        } else {
+          Alert.alert('Error', `Cannot open URL: ${authUrl}`);
+        }
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to open Google Sign In');
@@ -71,12 +77,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     width: '100%',
     maxWidth: 300,
-    // Shadow for iOS
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    // Shadow for Android
     elevation: 2,
   },
   googleIcon: {

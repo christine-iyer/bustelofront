@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View, Text, ActivityIndicator, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthContext } from './contexts/AuthContext';
 
 export default function AuthCallback() {
@@ -33,12 +32,9 @@ export default function AuthCallback() {
           return;
         }
 
-        // Store token
-        await AsyncStorage.setItem('authToken', token);
-        
-        // Fetch user data
+        // Fetch user data from your backend
         const response = await fetch(
-          'https://franky-app-ix96j.ondigitalocean.app/api/auth/me',
+          'https://franky-app-ix96j.ondigitalocean.app/api/user/me',
           {
             headers: { 
               'Authorization': `Bearer ${token}`,
@@ -54,7 +50,7 @@ export default function AuthCallback() {
         const userData = await response.json();
         
         // Update auth context
-        login(userData, token);
+        await login(userData, token);
         
         // Redirect to home
         router.replace('/');
