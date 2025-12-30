@@ -21,7 +21,7 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
       {
         clientID: GOOGLE_CLIENT_ID,
         clientSecret: GOOGLE_CLIENT_SECRET,
-        callbackURL: `${BACKEND_URL}/api/user/auth/google/callback`,
+        callbackURL: `${BACKEND_URL}/api/user/auth/google/Callback`,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
