@@ -95,7 +95,7 @@ const CreateReview: React.FC = () => {
         ))}
       </Picker>
 
-      <TextInput style={createReviewStyles.input} placeholder="Required Title" value={title} onChangeText={setTitle} />
+      <TextInput style={createReviewStyles.input} placeholder="Required Strain Name" value={title} onChangeText={setTitle} />
       <TextInput style={createReviewStyles.input} placeholder="Optional Review" value={text} onChangeText={setText} />
       
       <Picker style={createReviewStyles.input} selectedValue={genre} onValueChange={(itemValue) => setGenre(itemValue)}>
