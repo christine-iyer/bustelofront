@@ -99,9 +99,9 @@ const CreateReview: React.FC = () => {
       <TextInput style={createReviewStyles.input} placeholder="Optional Review" value={text} onChangeText={setText} />
       
       <Picker style={createReviewStyles.input} selectedValue={genre} onValueChange={(itemValue) => setGenre(itemValue)}>
-        <Picker.Item label="Select Genre" value="" />
-        <Picker.Item label="Action" value="Action" />
-        <Picker.Item label="Adventure" value="Adventure" />
+        <Picker.Item label="Select Type" value="" />
+        <Picker.Item label="Sativa" value="Sativa" />
+        <Picker.Item label="Hhbrid leans Sativa" value="Hhbrid leans Sativa" />
         <Picker.Item label="Comedy" value="Comedy" />
         <Picker.Item label="Drama" value="Drama" />
         <Picker.Item label="Fantasy" value="Fantasy" />
