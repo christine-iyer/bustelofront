@@ -101,13 +101,11 @@ const CreateReview: React.FC = () => {
       <Picker style={createReviewStyles.input} selectedValue={genre} onValueChange={(itemValue) => setGenre(itemValue)}>
         <Picker.Item label="Select Type" value="" />
         <Picker.Item label="Sativa" value="Sativa" />
-        <Picker.Item label="Hhbrid leans Sativa" value="Hhbrid leans Sativa" />
-        <Picker.Item label="Comedy" value="Comedy" />
-        <Picker.Item label="Drama" value="Drama" />
+        <Picker.Item label="Hybrid leans Sativa" value="Hybrid leans Sativa" />
+        <Picker.Item label="Indica" value="Indica" />
+        <Picker.Item label="Hybrid leans Indica" value="Hybrid leans Indica" />
         <Picker.Item label="Fantasy" value="Fantasy" />
-        <Picker.Item label="Horror" value="Horror" />
-        <Picker.Item label="Mystery" value="Mystery" />
-        <Picker.Item label="Romance" value="Romance" />
+        <Picker.Item label="Hybrid 50-50" value="Hybrid 50-50" />
       </Picker>
 
       <TextInput style={createReviewStyles.input} placeholder="Optional Rating (1-5)" keyboardType="numeric"
