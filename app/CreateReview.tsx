@@ -17,6 +17,9 @@ const CreateReview: React.FC = () => {
   const [text, setText] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
   const [genre, setGenre] = useState<string>("");
+  const [setting, setSetting] = useState<string>("");
+  const [source, setSource] = useState<string>("");
+  const [format, setFormat] = useState<string>("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   
   // Add back user selection states
@@ -68,6 +71,9 @@ const CreateReview: React.FC = () => {
         text,
         rating,
         genre,
+        setting,
+        source,
+        format,
         images: imageUrls,
       });
       
@@ -79,6 +85,9 @@ const CreateReview: React.FC = () => {
       setText("");
       setGenre("");
       setRating(0);
+      setSetting("");
+      setSource("dispo");
+      setFormat("");
       setImageUrls([]);
       setSelectedUser("");
       setSelectedUsername("");
@@ -114,6 +123,17 @@ const CreateReview: React.FC = () => {
         <Picker.Item label="Hybrid leans Indica" value="Hybrid leans Indica" />
         <Picker.Item label="Fantasy" value="Fantasy" />
         <Picker.Item label="Hybrid 50-50" value="Hybrid 50-50" />
+      </Picker>
+
+      <TextInput style={createReviewStyles.input} placeholder="Optional Setting" value={setting} onChangeText={setSetting} />
+      <TextInput style={createReviewStyles.input} placeholder="Optional Source" value={source} onChangeText={setSource} />
+      <Picker style={createReviewStyles.input} selectedValue={format} onValueChange={(itemValue) => setFormat(itemValue)}>
+        <Picker.Item label="Select Format" value="" />
+        <Picker.Item label="Preroll" value="Preroll" />
+        <Picker.Item label="Joint" value="Joint" />
+        <Picker.Item label="Edible" value="Edible" />
+        <Picker.Item label="Concentrate" value="Concentrate" />
+        <Picker.Item label="Dispo" value="Dispo" />
       </Picker>
 
       <TextInput style={createReviewStyles.input} placeholder="Optional Rating (1-5)" keyboardType="numeric"
