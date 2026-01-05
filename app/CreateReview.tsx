@@ -86,7 +86,7 @@ const CreateReview: React.FC = () => {
       setGenre("");
       setRating(0);
       setSetting("");
-      setSource("dispo");
+      setSource("");
       setFormat("");
       setImageUrls([]);
       setSelectedUser("");
