@@ -35,6 +35,9 @@ interface Review {
   text: string;
   rating: number;
   genre: string;
+  setting: string;
+  source: string;
+  format: string;
   userId: { _id: string; username: string } | null;
   images?: string[];
   like: number;
@@ -53,7 +56,7 @@ const ListReviews: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [editingReview, setEditingReview] = useState<string | null>(null);
   const [editingComment, setEditingComment] = useState<{ reviewId: string; commentId: string } | null>(null);
-  const [editReviewData, setEditReviewData] = useState<{ title: string; text: string; author: string; genre: string }>({ title: "", text: "", author: "", genre: "" });
+  const [editReviewData, setEditReviewData] = useState<{ title: string; text: string; author: string; genre: string; setting: string; source: string; format: string }>({ title: "", text: "", author: "", genre: "", setting: "", source: "", format: "" });
   const [editCommentText, setEditCommentText] = useState<string>("");
   const [expandedText, setExpandedText] = useState<{ [key: string]: boolean }>({});
   // Add confirmation dialog state
@@ -196,7 +199,10 @@ const ListReviews: React.FC = () => {
       title: review.title,
       text: review.text,
       author: review.author,
-      genre: review.genre
+      genre: review.genre, 
+      setting: review.setting,
+      source: review.source,
+      format: review.format
     });
   };
 
