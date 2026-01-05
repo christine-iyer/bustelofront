@@ -49,20 +49,37 @@ const CreateReview: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    // Validate that a user is selected
-    if (!selectedUser) {
-      Alert.alert("Error", "Please select an author!");
-      return;
-    }
-// so need to map title = name (strain name)
-// genre = type (sativa, indica, hybrid)
-// rating = rating
-// author = stroner
-// impression = text
-// new field setting (text)
-// new field  source = dispo andf product info (address?)
-// new field format = drop down (select list preroll, joint, edible, concentrate, dispo)
+  if (!selectedUser) {
+    Alert.alert("Error", "Please select an author!");
+    return;
+  }
 
+  // ADD THIS LOGGING
+  const payload = {
+    title,
+    author: selectedUsername,
+    userId: selectedUser,
+    text,
+    rating,
+    genre,
+    setting,
+    source,
+    format,
+    images: imageUrls,
+  };
+  
+  console.log("=== Submitting Review ===");
+  console.log("Payload:", JSON.stringify(payload, null, 2));
+  console.log("Setting:", setting);
+  console.log("Source:", source);
+  console.log("Format:", format);
+
+  try {
+    const response = await axios.post(
+      `https://franky-app-ix96j.ondigitalocean.app/api/review`, 
+      payload
+    );
+    // ... rest of code
     try {
       const response = await axios.post(`https://franky-app-ix96j.ondigitalocean.app/api/review`, {
         title,
