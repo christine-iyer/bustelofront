@@ -49,12 +49,11 @@ const CreateReview: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-  if (!selectedUser) {
-    Alert.alert("Error", "Please select an author!");
-    return;
-  }
-
-  // ADD THIS LOGGING
+    // Validate that a user is selected
+    if (!selectedUser) {
+      Alert.alert("Error", "Please select an author!");
+      return;
+    }
   const payload = {
     title,
     author: selectedUsername,
@@ -73,13 +72,6 @@ const CreateReview: React.FC = () => {
   console.log("Setting:", setting);
   console.log("Source:", source);
   console.log("Format:", format);
-
-  try {
-    const response = await axios.post(
-      `https://franky-app-ix96j.ondigitalocean.app/api/review`, 
-      payload
-    );
-    // ... rest of code
     try {
       const response = await axios.post(`https://franky-app-ix96j.ondigitalocean.app/api/review`, {
         title,
