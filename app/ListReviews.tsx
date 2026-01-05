@@ -59,7 +59,6 @@ const ListReviews: React.FC = () => {
   const [editReviewData, setEditReviewData] = useState<{ title: string; text: string; author: string; genre: string; setting: string; source: string; format: string }>({ title: "", text: "", author: "", genre: "", setting: "", source: "", format: "" });
   const [editCommentText, setEditCommentText] = useState<string>("");
   const [expandedText, setExpandedText] = useState<{ [key: string]: boolean }>({});
-  // Add confirmation dialog state
   const [confirmDelete, setConfirmDelete] = useState<{
     type: 'review' | 'comment';
     id: string;
@@ -127,11 +126,17 @@ const ListReviews: React.FC = () => {
   };
 
   const handleLikeReview = async (id: string) => {
-    console.log("Liking review with ID:", id);
+    console.log("=== LIKE REVIEW CLICKED ===");
+    console.log("Review ID:", id);
 
     const currentReview = reviews.find(review => review._id === id);
+    console.log("Current review found:", currentReview?.title);
+    console.log("Current like count:", currentReview?.like);
+    
     const newLikeCount = (currentReview?.like || 0) + 1;
+    console.log("New like count will be:", newLikeCount);
 
+    // Optimistically update UI
     setReviews((prevReviews) =>
       prevReviews.map((review) =>
         review._id === id ? { ...review, like: newLikeCount } : review
@@ -140,20 +145,39 @@ const ListReviews: React.FC = () => {
 
     try {
       const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}`;
-      console.log("Making request to:", url);
-      console.log("Sending like count:", newLikeCount);
+      console.log("Making PUT request to:", url);
+      console.log("Payload:", { like: newLikeCount });
 
       const response = await axios.put(url, { like: newLikeCount });
-      console.log("Like response:", response.data);
+      console.log("✅ SUCCESS - Like response:", response.data);
       console.log("Response status:", response.status);
+      
+      // Check if backend returned updated like count
+      if (response.data?.like !== undefined) {
+        console.log("Backend returned like count:", response.data.like);
+        // Update with actual backend value to ensure sync
+        setReviews((prevReviews) =>
+          prevReviews.map((review) =>
+            review._id === id ? { ...review, like: response.data.like } : review
+          )
+        );
+      }
     } catch (error: any) {
-      console.error("Error liking review:", error);
-      console.error("Error details:", error.response?.data);
+      console.error("❌ ERROR liking review:", error);
+      console.error("Error message:", error.message);
+      console.error("Error response data:", error.response?.data);
       console.error("Error status:", error.response?.status);
+      
+      // Revert to original like count on error
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
-          review._id === id ? { ...review, like: Math.max(0, (currentReview?.like || 0)) } : review
+          review._id === id ? { ...review, like: (currentReview?.like || 0) } : review
         )
+      );
+      
+      Alert.alert(
+        "Error", 
+        `Failed to like review: ${error.response?.data?.message || error.message}`
       );
     }
   };
@@ -163,33 +187,51 @@ const ListReviews: React.FC = () => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength).trim() + '...';
   };
-  const handleLikeComment = async (id: string, commentId: string) => {
-    console.log("Liking comment:", commentId, "for review:", id);
+
+  const handleLikeComment = async (reviewId: string, commentId: string) => {
+    console.log("=== LIKE COMMENT CLICKED ===");
+    console.log("Review ID:", reviewId);
+    console.log("Comment ID:", commentId);
+
+    // Find current comment to know current likes
+    const currentReview = reviews.find(r => r._id === reviewId);
+    const currentComment = currentReview?.comments?.find(c => c._id === commentId);
+    console.log("Current comment likes:", currentComment?.likes);
 
     try {
-      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${id}/comment/${commentId}/like`;
-      console.log("Liking comment, making request to:", url);
+      const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/comment/${commentId}/like`;
+      console.log("Making POST request to:", url);
+      
       const response = await axios.post(url);
-      console.log("Like comment response:", response.data);
+      console.log("✅ SUCCESS - Like comment response:", response.data);
 
+      // Update UI with new likes count
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
-          review._id === id
+          review._id === reviewId
             ? {
-              ...review,
-              comments: review.comments?.map((comment) =>
-                comment._id === commentId
-                  ? { ...comment, likes: comment.likes + 1 }
-                  : comment
-              ) || [],
-            }
+                ...review,
+                comments: review.comments?.map((comment) =>
+                  comment._id === commentId
+                    ? { 
+                        ...comment, 
+                        likes: response.data?.likes || (comment.likes + 1)
+                      }
+                    : comment
+                ) || [],
+              }
             : review
         )
       );
     } catch (error: any) {
-      console.error("Error liking comment:", error);
+      console.error("❌ ERROR liking comment:", error);
       console.error("Error details:", error.response?.data);
       console.error("Error status:", error.response?.status);
+      
+      Alert.alert(
+        "Error",
+        `Failed to like comment: ${error.response?.data?.message || error.message}`
+      );
     }
   };
 
@@ -263,7 +305,6 @@ const ListReviews: React.FC = () => {
     }
   };
 
-  // New delete functions with custom confirmation
   const handleDeleteReview = (reviewId: string) => {
     console.log("🎯 Delete button pressed for review:", reviewId);
     setConfirmDelete({
@@ -358,7 +399,7 @@ const ListReviews: React.FC = () => {
 
     return (
       <View style={styles.gridItem}>
-        {/* Three holes for notebook effect (keeping these if you want) */}
+        {/* Three holes for notebook effect */}
         <View style={styles.holeContainer}>
           <View style={styles.hole} />
           <View style={styles.hole} />
@@ -510,7 +551,6 @@ const ListReviews: React.FC = () => {
                   {expandedText[item._id] ? item.text : truncateText(item.text, 150)}
                 </Text>
 
-                {/* Show More/Less button only if text is longer than limit */}
                 {item.text.length > 15 && (
                   <TouchableOpacity
                     style={styles.showMoreButton}
