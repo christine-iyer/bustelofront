@@ -11,7 +11,7 @@ const HomeScreen = () => {
 
   if (isLoading) {
     return (
-      <View style={[layoutNavStyles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View style={[layoutNavStyles.container, { backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color="#4285F4" />
         <Text style={{ marginTop: 16, fontSize: 16 }}>Loading...</Text>
       </View>
@@ -21,12 +21,12 @@ const HomeScreen = () => {
   return (
     <View style={layoutNavStyles.container}>
       <Text style={layoutNavStyles.title}>
-        Welcome to Boostelo! Show us your flores
+        Welcome to Smoke Stack, a place to document, analyze, and share your seshes. 
       </Text>
       
       {user ? (
         <View style={styles.userInfo}>
-          <Text style={styles.welcome}>Welcome back, {user.username}! 🌺</Text>
+          <Text style={styles.welcome}>Welcome back to Smoke Stack, {user.username}! 🌺</Text>
           {user.avatar && (
             <Image 
               source={{ uri: user.avatar }} 
