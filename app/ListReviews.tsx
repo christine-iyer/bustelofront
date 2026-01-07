@@ -132,7 +132,7 @@ const ListReviews: React.FC = () => {
     const currentReview = reviews.find(review => review._id === id);
     console.log("Current review found:", currentReview?.title);
     console.log("Current like count:", currentReview?.like);
-    
+
     const newLikeCount = (currentReview?.like || 0) + 1;
     console.log("New like count will be:", newLikeCount);
 
@@ -151,7 +151,7 @@ const ListReviews: React.FC = () => {
       const response = await axios.put(url, { like: newLikeCount });
       console.log("✅ SUCCESS - Like response:", response.data);
       console.log("Response status:", response.status);
-      
+
       // Check if backend returned updated like count
       if (response.data?.like !== undefined) {
         console.log("Backend returned like count:", response.data.like);
@@ -167,16 +167,16 @@ const ListReviews: React.FC = () => {
       console.error("Error message:", error.message);
       console.error("Error response data:", error.response?.data);
       console.error("Error status:", error.response?.status);
-      
+
       // Revert to original like count on error
       setReviews((prevReviews) =>
         prevReviews.map((review) =>
           review._id === id ? { ...review, like: (currentReview?.like || 0) } : review
         )
       );
-      
+
       Alert.alert(
-        "Error", 
+        "Error",
         `Failed to like review: ${error.response?.data?.message || error.message}`
       );
     }
@@ -201,7 +201,7 @@ const ListReviews: React.FC = () => {
     try {
       const url = `https://franky-app-ix96j.ondigitalocean.app/api/review/${reviewId}/comment/${commentId}/like`;
       console.log("Making POST request to:", url);
-      
+
       const response = await axios.post(url);
       console.log("✅ SUCCESS - Like comment response:", response.data);
 
@@ -210,16 +210,16 @@ const ListReviews: React.FC = () => {
         prevReviews.map((review) =>
           review._id === reviewId
             ? {
-                ...review,
-                comments: review.comments?.map((comment) =>
-                  comment._id === commentId
-                    ? { 
-                        ...comment, 
-                        likes: response.data?.likes || (comment.likes + 1)
-                      }
-                    : comment
-                ) || [],
-              }
+              ...review,
+              comments: review.comments?.map((comment) =>
+                comment._id === commentId
+                  ? {
+                    ...comment,
+                    likes: response.data?.likes || (comment.likes + 1)
+                  }
+                  : comment
+              ) || [],
+            }
             : review
         )
       );
@@ -227,7 +227,7 @@ const ListReviews: React.FC = () => {
       console.error("❌ ERROR liking comment:", error);
       console.error("Error details:", error.response?.data);
       console.error("Error status:", error.response?.status);
-      
+
       Alert.alert(
         "Error",
         `Failed to like comment: ${error.response?.data?.message || error.message}`
@@ -241,7 +241,7 @@ const ListReviews: React.FC = () => {
       title: review.title,
       text: review.text,
       author: review.author,
-      genre: review.genre, 
+      genre: review.genre,
       setting: review.setting,
       source: review.source,
       format: review.format
@@ -502,22 +502,28 @@ const ListReviews: React.FC = () => {
                 placeholder="Book genre"
               />
 
+              <Text style={styles.labelText}>Setting:</Text>
+              <TextInput
+                style={styles.editInput}
+                value={editReviewData.setting}
+                onChangeText={(text) => setEditReviewData(prev => ({ ...prev, setting: text }))}
+                placeholder="Setting"
+              />
+
               <Text style={styles.labelText}>Source:</Text>
               <TextInput
-                style={[styles.editInput, styles.multilineInput]}
+                style={styles.editInput}
                 value={editReviewData.source}
                 onChangeText={(text) => setEditReviewData(prev => ({ ...prev, source: text }))}
-                placeholder="Your source"
-                
+                placeholder="Source"
               />
 
               <Text style={styles.labelText}>Format:</Text>
               <TextInput
-                style={[styles.editInput, styles.multilineInput]}
+                style={styles.editInput}
                 value={editReviewData.format}
                 onChangeText={(text) => setEditReviewData(prev => ({ ...prev, format: text }))}
-                placeholder="Your format"
-                
+                placeholder="Format"
               />
 
               <Text style={styles.labelText}>Review:</Text>
@@ -564,29 +570,67 @@ const ListReviews: React.FC = () => {
                 </Text>
               )}
 
-              <View>
+              {/* Genre/Type */}
+              {item.genre && (
                 <Text style={styles.gridText}>
-                  {expandedText[item._id] ? item.text : truncateText(item.text, 150)}
+                  <Text style={{ fontWeight: 'bold' }}>Type: </Text>{item.genre}
                 </Text>
+              )}
 
-                {item.text.length > 15 && (
-                  <TouchableOpacity
-                    style={styles.showMoreButton}
-                    onPress={() => {
-                      setExpandedText(prev => ({
-                        ...prev,
-                        [item._id]: !prev[item._id]
-                      }));
-                    }}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.showMoreText}>
-                      {expandedText[item._id] ? 'Show Less' : 'Show More'}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-              <Text style={styles.gridText}>{item.genre}</Text>
+              {/* Rating */}
+              {item.rating > 0 && (
+                <Text style={styles.gridText}>
+                  <Text style={{ fontWeight: 'bold' }}>Rating: </Text>
+                  {'⭐'.repeat(item.rating)} ({item.rating}/5)
+                </Text>
+              )}
+
+              {/* Setting */}
+              {item.setting && (
+                <Text style={styles.gridText}>
+                  <Text style={{ fontWeight: 'bold' }}>Setting: </Text>{item.setting}
+                </Text>
+              )}
+
+              {/* Source */}
+              {item.source && (
+                <Text style={styles.gridText}>
+                  <Text style={{ fontWeight: 'bold' }}>Source: </Text>{item.source}
+                </Text>
+              )}
+
+              {/* Format */}
+              {item.format && (
+                <Text style={styles.gridText}>
+                  <Text style={{ fontWeight: 'bold' }}>Format: </Text>{item.format}
+                </Text>
+              )}
+
+              {/* Review Text */}
+              {item.text && (
+                <View style={{ marginTop: 8 }}>
+                  <Text style={styles.gridText}>
+                    {expandedText[item._id] ? item.text : truncateText(item.text, 150)}
+                  </Text>
+
+                  {item.text.length > 150 && (
+                    <TouchableOpacity
+                      style={styles.showMoreButton}
+                      onPress={() => {
+                        setExpandedText(prev => ({
+                          ...prev,
+                          [item._id]: !prev[item._id]
+                        }));
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.showMoreText}>
+                        {expandedText[item._id] ? 'Show Less' : 'Show More'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
             </>
           )}
         </View>
