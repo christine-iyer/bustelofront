@@ -502,6 +502,24 @@ const ListReviews: React.FC = () => {
                 placeholder="Book genre"
               />
 
+              <Text style={styles.labelText}>Source:</Text>
+              <TextInput
+                style={[styles.editInput, styles.multilineInput]}
+                value={editReviewData.source}
+                onChangeText={(text) => setEditReviewData(prev => ({ ...prev, source: text }))}
+                placeholder="Your source"
+                
+              />
+
+              <Text style={styles.labelText}>Format:</Text>
+              <TextInput
+                style={[styles.editInput, styles.multilineInput]}
+                value={editReviewData.format}
+                onChangeText={(text) => setEditReviewData(prev => ({ ...prev, format: text }))}
+                placeholder="Your format"
+                
+              />
+
               <Text style={styles.labelText}>Review:</Text>
               <TextInput
                 style={[styles.editInput, styles.multilineInput]}
