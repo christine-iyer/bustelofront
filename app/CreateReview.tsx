@@ -6,13 +6,8 @@ import { createReviewStyles } from "./styles/createReviewStyles";
 import UploadImage from "./UploadImage";
 import { useAuthContext } from "./contexts/AuthContext";
 
-interface User {
-  _id: string;
-  username: string;
-}
-
 const CreateReview: React.FC = () => {
-  const { user } = useAuthContext(); // Keep this for other purposes
+  const { user } = useAuthContext(); // Get the logged-in user
   const [title, setTitle] = useState<string>("");
   const [text, setText] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
@@ -21,70 +16,45 @@ const CreateReview: React.FC = () => {
   const [source, setSource] = useState<string>("");
   const [format, setFormat] = useState<string>("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
-  
-  // Add back user selection states
-  const [users, setUsers] = useState<User[]>([]);
-  const [selectedUser, setSelectedUser] = useState<string>("");
-  const [selectedUsername, setSelectedUsername] = useState<string>("");
-
-  // Fetch users for the dropdown
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get("https://franky-app-ix96j.ondigitalocean.app/api/user");
-        setUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  // Update username when user is selected
-  const handleUserSelection = (userId: string) => {
-    setSelectedUser(userId);
-    const foundUser = users.find(u => u._id === userId);
-    setSelectedUsername(foundUser ? foundUser.username : "");
-  };
 
   const handleSubmit = async () => {
-    // Validate that a user is selected
-    if (!selectedUser) {
-      Alert.alert("Error", "Please select an author!");
+    // Validate that user is logged in
+    if (!user) {
+      Alert.alert("Error", "You must be logged in to create a review!");
       return;
     }
-  const payload = {
-    title,
-    author: selectedUsername,
-    userId: selectedUser,
-    text,
-    rating,
-    genre,
-    setting,
-    source,
-    format,
-    images: imageUrls,
-  };
-  
-  console.log("=== Submitting Review ===");
-  console.log("Payload:", JSON.stringify(payload, null, 2));
-  console.log("Setting:", setting);
-  console.log("Source:", source);
-  console.log("Format:", format);
+
+    // Validate required fields
+    if (!title.trim()) {
+      Alert.alert("Error", "Please enter a strain name!");
+      return;
+    }
+
+    const payload = {
+      title,
+      author: user.username,  // Auto-populate from logged-in user
+      userId: user._id,       // Auto-populate from logged-in user
+      text,
+      rating,
+      genre,
+      setting,
+      source,
+      format,
+      images: imageUrls,
+    };
+    
+    console.log("=== Submitting Review ===");
+    console.log("Payload:", JSON.stringify(payload, null, 2));
+    console.log("Author (auto-populated):", user.username);
+    console.log("Setting:", setting);
+    console.log("Source:", source);
+    console.log("Format:", format);
+
     try {
-      const response = await axios.post(`https://franky-app-ix96j.ondigitalocean.app/api/review`, {
-        title,
-        author: selectedUsername, // Use selected user's username
-        userId: selectedUser,     // Use selected user's ID
-        text,
-        rating,
-        genre,
-        setting,
-        source,
-        format,
-        images: imageUrls,
-      });
+      const response = await axios.post(
+        `https://franky-app-ix96j.ondigitalocean.app/api/review`, 
+        payload
+      );
       
       console.log("Review Created:", response.data);
       Alert.alert("Success", "Review written!");
@@ -98,33 +68,51 @@ const CreateReview: React.FC = () => {
       setSource("");
       setFormat("");
       setImageUrls([]);
-      setSelectedUser("");
-      setSelectedUsername("");
     } catch (error: any) {
       console.error("Error creating review:", error.response?.data || error);
       Alert.alert("Error", error.response?.data?.message || "Something went wrong!");
     }
   };
 
+  // Show message if user is not logged in
+  if (!user) {
+    return (
+      <View style={createReviewStyles.form}>
+        <Text style={createReviewStyles.labelText}>
+          Please sign in to create a review.
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={createReviewStyles.form}>
-      {/* User Selection Picker */}
-      <Text style={createReviewStyles.labelText}>Select Author:</Text>
+      {/* Display logged-in user info */}
+      <View style={{ marginBottom: 16, padding: 12, backgroundColor: '#f0f0f0', borderRadius: 8 }}>
+        <Text style={{ fontSize: 14, color: '#666' }}>
+          Posting as: <Text style={{ fontWeight: 'bold', color: '#333' }}>{user.username}</Text>
+        </Text>
+      </View>
+
+      <TextInput 
+        style={createReviewStyles.input} 
+        placeholder="Required Strain Name" 
+        value={title} 
+        onChangeText={setTitle} 
+      />
+      
+      <TextInput 
+        style={createReviewStyles.input} 
+        placeholder="Optional Review" 
+        value={text} 
+        onChangeText={setText} 
+      />
+      
       <Picker 
         style={createReviewStyles.input} 
-        selectedValue={selectedUser} 
-        onValueChange={handleUserSelection}
+        selectedValue={genre} 
+        onValueChange={(itemValue) => setGenre(itemValue)}
       >
-        <Picker.Item label="Select an author" value="" />
-        {users.map((user) => (
-          <Picker.Item key={user._id} label={user.username} value={user._id} />
-        ))}
-      </Picker>
-
-      <TextInput style={createReviewStyles.input} placeholder="Required Strain Name" value={title} onChangeText={setTitle} />
-      <TextInput style={createReviewStyles.input} placeholder="Optional Review" value={text} onChangeText={setText} />
-      
-      <Picker style={createReviewStyles.input} selectedValue={genre} onValueChange={(itemValue) => setGenre(itemValue)}>
         <Picker.Item label="Select Type" value="" />
         <Picker.Item label="Sativa" value="Sativa" />
         <Picker.Item label="Hybrid leans Sativa" value="Hybrid leans Sativa" />
@@ -134,9 +122,25 @@ const CreateReview: React.FC = () => {
         <Picker.Item label="Hybrid 50-50" value="Hybrid 50-50" />
       </Picker>
 
-      <TextInput style={createReviewStyles.input} placeholder="Optional Setting" value={setting} onChangeText={setSetting} />
-      <TextInput style={createReviewStyles.input} placeholder="Optional Source" value={source} onChangeText={setSource} />
-      <Picker style={createReviewStyles.input} selectedValue={format} onValueChange={(itemValue) => setFormat(itemValue)}>
+      <TextInput 
+        style={createReviewStyles.input} 
+        placeholder="Optional Setting" 
+        value={setting} 
+        onChangeText={setSetting} 
+      />
+      
+      <TextInput 
+        style={createReviewStyles.input} 
+        placeholder="Optional Source" 
+        value={source} 
+        onChangeText={setSource} 
+      />
+      
+      <Picker 
+        style={createReviewStyles.input} 
+        selectedValue={format} 
+        onValueChange={(itemValue) => setFormat(itemValue)}
+      >
         <Picker.Item label="Select Format" value="" />
         <Picker.Item label="Preroll" value="Preroll" />
         <Picker.Item label="Joint" value="Joint" />
@@ -145,8 +149,13 @@ const CreateReview: React.FC = () => {
         <Picker.Item label="Dispo" value="Dispo" />
       </Picker>
 
-      <TextInput style={createReviewStyles.input} placeholder="Optional Rating (1-5)" keyboardType="numeric"
-        value={rating ? rating.toString() : ""} onChangeText={(value) => setRating(parseInt(value) || 0)} />
+      <TextInput 
+        style={createReviewStyles.input} 
+        placeholder="Optional Rating (1-5)" 
+        keyboardType="numeric"
+        value={rating ? rating.toString() : ""} 
+        onChangeText={(value) => setRating(parseInt(value) || 0)} 
+      />
       
       <UploadImage onUpload={(urls) => {
         console.log("Uploaded image URLs:", urls);
@@ -156,7 +165,11 @@ const CreateReview: React.FC = () => {
       {imageUrls.length > 0 && (
         <ScrollView horizontal>
           {imageUrls.map((img, index) => (
-            <Image key={index} source={{ uri: img }} style={{ width: 80, height: 80, margin: 5 }} />
+            <Image 
+              key={index} 
+              source={{ uri: img }} 
+              style={{ width: 80, height: 80, margin: 5 }} 
+            />
           ))}
         </ScrollView>
       )}
